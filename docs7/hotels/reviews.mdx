@@ -1,0 +1,114 @@
+---
+title: "Hotel reviews"
+---
+
+Hotel reviews API in Python, JavaScript, Go, Ruby, Java, and PHP. Page guest reviews for one hotel by date, score, traveller, month, or source. cURL included.
+
+Base URL: https://api.ktemia.com
+Authentication: send header `X-API-Key` on every request.
+
+`GET /hotels/reviews`
+
+Read a page of guest reviews for one hotel.
+
+This call needs a hotel id and no search token. The id is `id` on a result, or `hotelId` on a location whose type is `hotel`. Each page has 10 reviews. A hotel with thousands of reviews still answers in under a second.
+
+## Filters
+
+`sortBy` is `recent`, `oldest`, `highestScore`, or `lowestScore`. `travelerTypes` is a comma-separated list of `families`, `couples`, `solo`, `friends`, and `business`. `months` is a comma-separated list of month numbers, `1` through `12`. `sources` is `booking`, `agoda`, `priceline`, or a mix. `search` keeps reviews that mention the text.
+
+An unknown hotel id returns `200` with `totalReviews: 0` and an empty `reviews` list. A non-numeric id, a bad sort, or a month outside 1–12 returns `400` and names the parameter. If the review service itself fails, the response is `502 REVIEWS_UNAVAILABLE`.
+
+## Query parameters
+
+- `hotelId` (string, required): The `id` of a hotel from `/hotels/results`, or `hotelId` on a location whose `locationType` is `hotel`. Digits only. No search token.
+- `sortBy` (string, optional): How to order the reviews. Defaults to recent.
+  - `recent` - Default. Newest stay first.
+  - `oldest` - Oldest stay first.
+  - `highestScore` - Highest score first.
+  - `lowestScore` - Lowest score first.
+- `travelerTypes` (string, optional): Comma-separated. Keep reviews from these travellers. Any other value is rejected.
+  - `families` - Families.
+  - `couples` - Couples.
+  - `solo` - Solo travellers.
+  - `friends` - Friends.
+  - `business` - Business travellers.
+- `months` (string, optional): Comma-separated months of the stay, `1` through `12`. `10,11` is October and November. Month names are rejected.
+- `sources` (string, optional): Comma-separated sites to read reviews from. Omit it to read all three.
+  - `booking` - Booking.com.
+  - `agoda` - Agoda.
+  - `priceline` - Priceline.
+- `search` (string, optional): Only reviews that mention this text. Up to 100 characters.
+- `page` (integer, optional): 1-based page. Each page has 10 reviews. Defaults to 1.
+
+## Response fields
+
+- `hotelId` (string, required): The hotel you asked about.
+- `totalReviews` (integer, required): How many reviews match these filters. `0` when the hotel has none, or the id is unknown.
+- `page` (integer, required): The page you asked for.
+- `hasMore` (boolean, required): True when another page of 10 exists.
+- `reviews` (array of objects, required): Up to 10 reviews.
+  - `id` (string, required): Review id.
+  - `score` (number, optional): Score on a 0–10 scale, the same scale as `rating.score` on a hotel.
+  - `label` (string, optional): Short label for the score, for example `Excellent`.
+  - `date` (string, optional): Month of the stay, `YYYY-MM`.
+  - `author` (string, optional): Reviewer name, or a generic label when the site withholds it.
+  - `positive` (string, optional): What the guest liked.
+  - `negative` (string, optional): What the guest disliked.
+  - `comment` (string, optional): A single comment when the review is not split into positive and negative.
+  - `source` (string, optional): Site the review was written on, for example `Booking.com`.
+  - `url` (string, optional): That review on the source site. `null` when the source did not publish a link.
+
+## Example: Recent reviews
+
+`GET /hotels/reviews` → 200
+
+Request:
+
+```json
+{
+  "hotelId": "5782",
+  "sortBy": "recent"
+}
+```
+
+Response:
+
+```json
+{
+  "hotelId": "5782",
+  "totalReviews": 396,
+  "page": 1,
+  "hasMore": true,
+  "reviews": [
+    {
+      "id": "r7tKjqEBLNjwf3gzyjSF",
+      "score": 10,
+      "label": "Excellent",
+      "date": "2026-10",
+      "author": "Terence",
+      "positive": "Staff went over and above and a beautiful pleace",
+      "negative": "Dining room was dusty and dirts where they sat us in the corner.",
+      "comment": null,
+      "source": "Booking.com",
+      "url": "https://www.booking.com/hotel/gb/threadneedles-london.en.html?…"
+    },
+    {
+      "id": "PMAxRqEB3jszjc9nSern",
+      "score": 10,
+      "label": "Excellent",
+      "date": "2026-10",
+      "author": "Mark",
+      "positive": null,
+      "negative": "nothing",
+      "comment": null,
+      "source": "Booking.com",
+      "url": "https://www.booking.com/hotel/gb/threadneedles-london.en.html?…"
+    }
+  ]
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/hotels/reviews)._
+
+Docs: https://www.ktemia.com/docs/api/hotels/reviews/

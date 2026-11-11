@@ -1,0 +1,80 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Ktemia API",
+  "colors": {
+    "primary": "#1F6FEB",
+    "light": "#1F6FEB",
+    "dark": "#1F6FEB"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get started",
+        "pages": [
+          "index",
+          "introduction",
+          "getting-started"
+        ]
+      },
+      {
+        "group": "Flights",
+        "pages": [
+          "flights/airports",
+          "flights/airlines",
+          "flights/search",
+          "flights/results",
+          "flights/details"
+        ]
+      },
+      {
+        "group": "Hotels",
+        "pages": [
+          "hotels/locations",
+          "hotels/search",
+          "hotels/results",
+          "hotels/details",
+          "hotels/reviews"
+        ]
+      },
+      {
+        "group": "Cars",
+        "pages": [
+          "cars/locations",
+          "cars/search",
+          "cars/results",
+          "cars/details"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/filter-by-provider"
+        ]
+      },
+      {
+        "group": "Objects",
+        "pages": [
+          "objects/flight",
+          "objects/booking-option",
+          "objects/hotel",
+          "objects/hotel-booking-option",
+          "objects/hotel-review",
+          "objects/car",
+          "objects/car-booking-option"
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/ktemiaa/ktemia-docs"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/ktemiaa/ktemia-docs"
+    }
+  }
+}

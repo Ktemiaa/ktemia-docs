@@ -1,0 +1,196 @@
+---
+title: "Search locations"
+sidebarTitle: "Search locations (hotels)"
+---
+
+Hotel API location lookup in Python, JavaScript, Go, Ruby, Java, and PHP. Turn a city, neighbourhood, or property name into the id a hotel search accepts. cURL included.
+
+Base URL: https://api.ktemia.com
+Authentication: send header `X-API-Key` on every request.
+
+`GET /hotels/locations`
+
+Find the location ids a hotel search accepts.
+
+A hotel search takes a location id, not a name. This call turns a city, neighbourhood, landmark, airport, or property name into that id.
+
+Send `X-API-Key` the same way as on every other call. `query` is required. `country` and `locale` default to US and `en`.
+
+## Which id to send
+
+Use `locations[].locationId` as `location` on [Search hotels](/hotels/search). `29230` is London. A neighbourhood and an airport in the same city have their own ids.
+
+A row with `locationType: hotel` is a specific property. Its `locationId` is still the city, so a search for that id returns the city. Its `hotelId` is what [Hotel reviews](/hotels/reviews) takes, and it matches `id` on a result from that city.
+
+A query that matches nothing returns `200` with an empty `locations` list. A missing `query`, a blank `query`, a bad `locale`, or an unsupported `country` returns `400`. If the lookup itself fails, the response is `502 LOCATIONS_UNAVAILABLE`.
+
+## Query parameters
+
+- `query` (string, required): City, neighbourhood, landmark, airport, or property name. 1 to 80 characters. A blank value is rejected.
+- `country` (string, optional): ISO 3166-1 alpha-2 market. Omit it for US. Any other value is rejected. Same set as on a hotel search.
+  - `US`
+  - `GB`
+  - `DE`
+  - `FR`
+  - `ES`
+  - `IT`
+  - `NL`
+  - `BE`
+  - `AT`
+  - `CH`
+  - `IE`
+  - `PT`
+  - `GR`
+  - `PL`
+  - `CZ`
+  - `RO`
+  - `SE`
+  - `NO`
+  - `DK`
+  - `FI`
+  - `TR`
+  - `AE`
+  - `SA`
+  - `IL`
+  - `IN`
+  - `JP`
+  - `KR`
+  - `HK`
+  - `TW`
+  - `SG`
+  - `MY`
+  - `TH`
+  - `ID`
+  - `PH`
+  - `VN`
+  - `AU`
+  - `NZ`
+  - `CA`
+  - `MX`
+  - `BR`
+  - `AR`
+  - `CL`
+  - `CO`
+  - `PE`
+  - `UY`
+  - `PY`
+  - `BO`
+  - `EC`
+  - `VE`
+  - `CR`
+  - `PA`
+  - `GT`
+  - `HN`
+  - `NI`
+  - `SV`
+  - `DO`
+  - `PR`
+  - `ZA`
+  - `UA`
+- `locale` (string, optional): 2-letter language code. Omit it for `en`. Anything that is not two letters is rejected.
+
+## Response fields
+
+- `query` (string, required): The query you sent, with surrounding spaces removed.
+- `locations` (array of objects, required): Matching places, best match first. Empty when nothing matches.
+  - `locationId` (string, required): Id to send as `location` on [Search hotels](/hotels/search). A city, airport, neighbourhood, and a named hotel in that city share this id.
+  - `name` (string, optional): Full display name.
+  - `city` (string, optional): City.
+  - `region` (string, optional): Region or state when the place has one.
+  - `country` (string, optional): Country name.
+  - `countryCode` (string, optional): ISO 3166-1 alpha-2 country code.
+  - `locationType` (string, optional): What this row is: `city`, `airport`, `neighborhood`, `landmark`, or `hotel`.
+  - `lat` (number, optional): Latitude.
+  - `lng` (number, optional): Longitude.
+  - `hotelId` (string, optional): Present when `locationType` is `hotel`. This is the id [Hotel reviews](/hotels/reviews) takes. It is not a search location.
+
+## Example: London
+
+`GET /hotels/locations` → 200
+
+Request:
+
+```json
+{
+  "query": "London"
+}
+```
+
+Response:
+
+```json
+{
+  "query": "London",
+  "locations": [
+    {
+      "locationId": "29230",
+      "name": "London, England, United Kingdom",
+      "city": "London",
+      "region": "England",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "locationType": "city",
+      "lat": 51.49916450106749,
+      "lng": -0.12525865742190945
+    },
+    {
+      "locationId": "174457",
+      "name": "Heathrow, London, England, United Kingdom, (LHR)",
+      "city": "London",
+      "region": "England",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "locationType": "airport",
+      "lat": 51.47115,
+      "lng": -0.4564899999999999
+    },
+    {
+      "locationId": "62830",
+      "name": "London, Ontario, Canada",
+      "city": "London",
+      "region": "Ontario",
+      "country": "Canada",
+      "countryCode": "CA",
+      "locationType": "city",
+      "lat": 42.98339,
+      "lng": -81.23304
+    }
+  ]
+}
+```
+
+## Example: A named hotel
+
+`GET /hotels/locations` → 200
+
+Request:
+
+```json
+{
+  "query": "Hyatt Regency London Olympia"
+}
+```
+
+Response:
+
+```json
+{
+  "query": "Hyatt Regency London Olympia",
+  "locations": [
+    {
+      "locationId": "29230",
+      "name": "Hyatt Regency London Olympia, London, England, United Kingdom",
+      "city": "London",
+      "region": "England",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "locationType": "hotel",
+      "lat": 51.497593,
+      "lng": -0.210346,
+      "hotelId": "1072956080"
+    }
+  ]
+}
+```
+
+Docs: https://www.ktemia.com/docs/api/hotels/locations/

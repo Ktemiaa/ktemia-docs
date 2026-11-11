@@ -1,0 +1,275 @@
+---
+title: "Retrieve hotel details"
+---
+
+Hotel API details in Python, JavaScript, Go, Ruby, Java, and PHP. Expand one hotel into every seller, with a URL that opens that booking site. cURL included.
+
+Base URL: https://api.ktemia.com
+Authentication: send header `X-API-Key` on every request.
+
+`GET /hotels/details`
+
+Expand one hotel into booking options with provider URLs.
+
+Query parameters are `token` and `resultId`. You do not send the city, dates, or sort again. This call usually answers in 3–8 seconds and includes a booking link for each seller that resolved.
+
+## The booking URL
+
+`bookingOptions[].providerUrl` opens the seller’s site with the stay filled in. Open it in a new tab and leave the query string as returned. A `null` URL means that seller did not resolve; the others on the same hotel are still usable.
+
+`reviews.recent` is up to five of the newest guest reviews, on the same 0–10 scale as the hotel score. Page through the rest with [Hotel reviews](/hotels/reviews).
+
+## Query parameters
+
+- `token` (string, required): Any token of the search that produced the hotel - the original `searchToken` or a later `nextToken`.
+- `resultId` (string, required): The `id` of a hotel from `/hotels/results` for this same token.
+
+## Response fields
+
+- `resultId` (string, required): The `id` you asked about.
+- `property` (object, optional): The hotel: name, description, stars, rating, amenities, phone.
+  - `name` (string, optional): Property name.
+  - `description` (string, optional): Short description when the property publishes one.
+  - `propertyType` (object, optional): What kind of stay this is.
+    - `code` (string, optional): Type code, for example `hotel`.
+    - `name` (string, optional): Display name, for example `Hotel`.
+  - `stars` (number, optional): Star rating. `0` means the property is unrated.
+  - `usesStarRating` (boolean, optional): True when `stars` is a star class.
+  - `phone` (string, optional): Phone number when the property publishes one.
+  - `rating` (object, optional): Guest score.
+    - `score` (number, optional): Guest score on a 0–10 scale.
+    - `label` (string, optional): Short label for the score, for example `Very good`.
+    - `reviewCount` (integer, optional): How many reviews the score is based on.
+  - `amenities` (array of objects, optional): Amenities, each with `code` and `name`. The `code` is what `amenities` on a new search accepts.
+  - `badges` (array of objects, optional): Highlights. Each has `type` and `label`.
+- `location` (object, optional): Where the property is.
+  - `city` (string, optional): City.
+  - `neighborhood` (string, optional): Neighbourhood when the property publishes one.
+  - `distance` (string, optional): Distance from the reference point, already formatted.
+  - `distanceFrom` (string, optional): What the distance is measured from, for example the city centre.
+  - `lat` (number, optional): Latitude.
+  - `lng` (number, optional): Longitude.
+- `images` (array of objects, optional): Photos. Each has `url`, `thumbnail`, and `category`.
+- `usualPrice` (object, optional): A recent higher price for the same stay, when one is published.
+  - `amount` (number, optional): Numeric amount in the country’s native currency.
+  - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+  - `formatted` (string, optional): Same amount, already formatted for display.
+- `bookingOptions` (array of objects, optional): Every seller for this stay, with a provider URL when it resolved.
+  - `provider` (string, optional): Seller name.
+  - `price` (object, optional): Stay price before taxes.
+    - `amount` (number, optional): Numeric amount in the country’s native currency.
+    - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+    - `formatted` (string, optional): Same amount, already formatted for display.
+  - `totalPrice` (object, optional): Stay price with taxes included.
+    - `amount` (number, optional): Numeric amount in the country’s native currency.
+    - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+    - `formatted` (string, optional): Same amount, already formatted for display.
+  - `rateType` (string, optional): Rate label from the seller.
+  - `roomCode` (string, optional): Room code at the seller, when one is published.
+  - `freebies` (array of strings, optional): Included extras.
+  - `taxEstimated` (boolean, optional): True when the tax portion is an estimate.
+  - `instantBooking` (boolean, optional): True when the seller can confirm immediately.
+  - `directWithProperty` (boolean, optional): True when this option is booked with the property itself.
+  - `privateDeal` (boolean, optional): True when the rate is a private or member deal.
+  - `providerUrl` (string, optional): URL that opens this seller’s site with the stay filled in. `null` when it did not resolve.
+  - `providerDomain` (string, optional): Host of `providerUrl`.
+- `reviews` (object, optional): Guest score plus up to 5 recent reviews. [Hotel reviews](/hotels/reviews) pages the rest. An empty `recent` means the review call failed; the booking options are still valid.
+  - `score` (number, optional): Guest score on a 0–10 scale.
+  - `label` (string, optional): Short label for the score.
+  - `count` (integer, optional): How many reviews the hotel has.
+  - `recent` (array of objects, optional): Up to 5 most recent reviews.
+    - `id` (string, required): Review id.
+    - `score` (number, optional): Score on a 0–10 scale, the same scale as `rating.score` on a hotel.
+    - `label` (string, optional): Short label for the score, for example `Excellent`.
+    - `date` (string, optional): Month of the stay, `YYYY-MM`.
+    - `author` (string, optional): Reviewer name, or a generic label when the site withholds it.
+    - `positive` (string, optional): What the guest liked.
+    - `negative` (string, optional): What the guest disliked.
+    - `comment` (string, optional): A single comment when the review is not split into positive and negative.
+    - `source` (string, optional): Site the review was written on, for example `Booking.com`.
+    - `url` (string, optional): That review on the source site. `null` when the source did not publish a link.
+
+## Example: London stay
+
+`GET /hotels/details` → 200
+
+Request:
+
+```json
+{
+  "token": "eyJwIjoxLCJzIjoiNjgyMmZiMzMyMzA4NDZjNGFiZWRiM2Q2OTRiM2YyNjgiLCJ2IjoxfQ",
+  "resultId": "5782"
+}
+```
+
+Response:
+
+```json
+{
+  "resultId": "5782",
+  "property": {
+    "name": "Threadneedles Autograph Collection",
+    "description": "Experience refined luxury combined with incredible convenience at our boutique hotel in London. Perfectly situated within the former Victorian City Bank, it features 5-star guest rooms and suites with distinctive, tim...",
+    "propertyType": {
+      "code": "hotel",
+      "name": "Hotel"
+    },
+    "stars": 5,
+    "usesStarRating": true,
+    "phone": "+44 207 657 8080",
+    "rating": {
+      "score": 8.9,
+      "label": "Very good",
+      "reviewCount": 504
+    },
+    "amenities": [
+      {
+        "code": "24hfrontdesk",
+        "name": "24hr front desk"
+      },
+      {
+        "code": "ac",
+        "name": "Air-conditioned"
+      },
+      {
+        "code": "shuttle",
+        "name": "Airport shuttle"
+      }
+    ],
+    "badges": [
+      {
+        "type": "freeWifi",
+        "label": "Free WiFi"
+      }
+    ]
+  },
+  "location": {
+    "city": "London",
+    "neighborhood": "City of London",
+    "distance": "2.0 mi",
+    "distanceFrom": "from city center",
+    "lat": 51.51415,
+    "lng": -0.085678
+  },
+  "images": [
+    {
+      "url": "https://content.r9cdn.net/rimg/himg/1b/39/42/leonardo-5782-3599011-366479.jpg?…",
+      "thumbnail": "https://content.r9cdn.net/rimg/himg/1b/39/42/leonardo-5782-3599011-366479.jpg?…",
+      "category": "Lounge"
+    },
+    {
+      "url": "https://content.r9cdn.net/rimg/himg/98/7c/97/leonardo-5782-3599012-556705.jpg?…",
+      "thumbnail": "https://content.r9cdn.net/rimg/himg/98/7c/97/leonardo-5782-3599012-556705.jpg?…",
+      "category": "Lounge"
+    }
+  ],
+  "usualPrice": {
+    "amount": 899.15,
+    "currency": "USD",
+    "formatted": "$899"
+  },
+  "bookingOptions": [
+    {
+      "provider": "Booking.com",
+      "price": {
+        "amount": 760,
+        "currency": "USD",
+        "formatted": "$760"
+      },
+      "totalPrice": {
+        "amount": 904,
+        "currency": "USD",
+        "formatted": "$904"
+      },
+      "rateType": "bestAvailable",
+      "roomCode": "36278308",
+      "freebies": null,
+      "taxEstimated": false,
+      "instantBooking": true,
+      "directWithProperty": false,
+      "privateDeal": false,
+      "providerUrl": "https://www.booking.com/hotel/gb/threadneedles-london.html?…",
+      "providerDomain": "www.booking.com"
+    },
+    {
+      "provider": "Marriott Bonvoy",
+      "price": {
+        "amount": 753,
+        "currency": "USD",
+        "formatted": "$753"
+      },
+      "totalPrice": {
+        "amount": 753,
+        "currency": "USD",
+        "formatted": "$753"
+      },
+      "rateType": "memberOnly",
+      "roomCode": null,
+      "freebies": null,
+      "taxEstimated": false,
+      "instantBooking": true,
+      "directWithProperty": false,
+      "privateDeal": false,
+      "providerUrl": null,
+      "providerDomain": null
+    },
+    {
+      "provider": "Expedia",
+      "price": {
+        "amount": 753,
+        "currency": "USD",
+        "formatted": "$753"
+      },
+      "totalPrice": {
+        "amount": 904,
+        "currency": "USD",
+        "formatted": "$904"
+      },
+      "rateType": "bestAvailable",
+      "roomCode": "200290792",
+      "freebies": null,
+      "taxEstimated": false,
+      "instantBooking": true,
+      "directWithProperty": false,
+      "privateDeal": false,
+      "providerUrl": "https://www.expedia.com/Hotel-Search?…",
+      "providerDomain": "www.expedia.com"
+    }
+  ],
+  "reviews": {
+    "score": 8.9,
+    "label": "Very good",
+    "count": 396,
+    "recent": [
+      {
+        "id": "r7tKjqEBLNjwf3gzyjSF",
+        "score": 10,
+        "label": "Excellent",
+        "date": "2026-10",
+        "author": "Terence",
+        "positive": "Staff went over and above and a beautiful pleace",
+        "negative": "Dining room was dusty and dirts where they sat us in the corner.",
+        "comment": null,
+        "source": "Booking.com",
+        "url": "https://www.booking.com/hotel/gb/threadneedles-london.en.html?…"
+      },
+      {
+        "id": "PMAxRqEB3jszjc9nSern",
+        "score": 10,
+        "label": "Excellent",
+        "date": "2026-10",
+        "author": "Mark",
+        "positive": null,
+        "negative": "nothing",
+        "comment": null,
+        "source": "Booking.com",
+        "url": "https://www.booking.com/hotel/gb/threadneedles-london.en.html?…"
+      }
+    ]
+  }
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/hotels/details)._
+
+Docs: https://www.ktemia.com/docs/api/hotels/details/

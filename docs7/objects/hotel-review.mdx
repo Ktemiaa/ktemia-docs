@@ -1,0 +1,41 @@
+---
+title: "The Hotel review object"
+---
+
+One guest review, scored on the same 0–10 scale as the hotel.
+
+A review is one guest’s stay. `score` is 0–10. `url` opens that review on the site it was written on. `positive`, `negative`, and `comment` are whichever of those the source published.
+
+## Attributes
+
+- `id` (string, required): Review id.
+- `score` (number, optional): Score on a 0–10 scale, the same scale as `rating.score` on a hotel.
+- `label` (string, optional): Short label for the score, for example `Excellent`.
+- `date` (string, optional): Month of the stay, `YYYY-MM`.
+- `author` (string, optional): Reviewer name, or a generic label when the site withholds it.
+- `positive` (string, optional): What the guest liked.
+- `negative` (string, optional): What the guest disliked.
+- `comment` (string, optional): A single comment when the review is not split into positive and negative.
+- `source` (string, optional): Site the review was written on, for example `Booking.com`.
+- `url` (string, optional): That review on the source site. `null` when the source did not publish a link.
+
+## Example
+
+```json
+{
+  "id": "r7tKjqEBLNjwf3gzyjSF",
+  "score": 10,
+  "label": "Excellent",
+  "date": "2026-10",
+  "author": "Terence",
+  "positive": "Staff went over and above and a beautiful pleace",
+  "negative": "Dining room was dusty and dirts where they sat us in the corner.",
+  "comment": null,
+  "source": "Booking.com",
+  "url": "https://www.booking.com/hotel/gb/threadneedles-london.en.html?…"
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/objects/hotel-review)._
+
+Docs: https://www.ktemia.com/docs/api/objects/hotel-review/

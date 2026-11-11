@@ -1,0 +1,35 @@
+---
+title: "Ktemia API"
+description: "Travel search API for flights, hotels, and car rentals. Each result lists every seller with a price and booking URL."
+---
+
+Search and compare flights, hotels, and car rentals from airlines and booking sites in one API. Each result names the seller, the price, and a booking link. Ktemia compares; the traveller books on the seller's site.
+
+The canonical docs, with a live playground and code in seven languages, are at **[ktemia.com/docs/api](https://www.ktemia.com/docs/api/)**. This repository is generated from them, so coding agents and readers on GitHub get the same contract.
+
+## Quickstart
+
+1. Get a key at [app.ktemia.com](https://app.ktemia.com). The Free plan includes 100 API requests a month.
+2. Send it as `X-API-Key` on every request to `https://api.ktemia.com`, from a server.
+3. Start a search, then read the results:
+
+```bash
+curl https://api.ktemia.com/flights/search \
+  -H "X-API-Key: $KTEMIA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"origin": "JFK", "destination": "LAX", "departureDate": "2026-12-05"}'
+# -> {"searchToken": "...", "expiresIn": 3600}
+
+curl "https://api.ktemia.com/flights/results?token=SEARCH_TOKEN" -H "X-API-Key: $KTEMIA_API_KEY"
+```
+
+Every vertical works the same way: a search returns a token, results pages through offers, details expands one offer into every seller's price and booking URL.
+
+<CardGroup cols={2}>
+<Card title="Introduction" icon="book-open" href="/introduction">
+Base URL, authentication, errors, pagination.
+</Card>
+<Card title="Getting started" icon="rocket" href="/getting-started">
+The shortest path from a key to a result.
+</Card>
+</CardGroup>

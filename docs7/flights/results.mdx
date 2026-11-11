@@ -1,0 +1,1478 @@
+---
+title: "List results"
+sidebarTitle: "List results (flights)"
+---
+
+Fetch a page of flight data for a search: 20 itineraries, a nextToken, an exact total. Code in cURL, Python, Node, Go, Java, Ruby, and PHP.
+
+Base URL: https://api.ktemia.com
+Authentication: send header `X-API-Key` on every request.
+
+`GET /flights/results`
+
+Read a page of a search identified by its token.
+
+Pass the `searchToken` from `/flights/search` as the `token` query parameter to get page 1. Each response that has another page includes `nextToken`. This call usually answers in 1–2 seconds.
+
+## What is in a page
+
+`flights` is at most 20 itineraries. `availableFilters` describes this search; every `value` in it is a valid input on a new `/flights/search`. `providers` maps the seller codes on this page to display names.
+
+The `id` on a flight is what `/flights/details` wants as `resultId`. Keep the token - details needs it too.
+
+## Read more
+
+Why one search lists several providers for the same flight: [flight aggregator API](https://www.ktemia.com/blog/flight-aggregator-api/). How far apart those prices can be: [we compared 1,703 flights across 57 booking sites](https://www.ktemia.com/blog/flight-price-spread/).
+
+## Query parameters
+
+- `token` (string, required): A `searchToken` from `/flights/search` for page 1, or a `nextToken` from the previous page. There is no page number to set.
+
+## Response fields
+
+- `flights` (array of objects, required): Up to 20 itineraries.
+  - `id` (string, required): Opaque identifier of this itinerary. Pass it as `resultId` to `/flights/details`.
+  - `legs` (array of objects, optional): One entry per takeoff-to-landing journey. A one-way has one, a round trip two, a multi-city one per `legs` item you sent.
+    - `departure` (string, optional): Local departure time of the first segment.
+    - `arrival` (string, optional): Local arrival time of the last segment.
+    - `duration` (integer, optional): Total elapsed time in minutes, including layovers.
+    - `stops` (integer, optional): Number of stops. `0` is nonstop.
+    - `segments` (array of objects, optional): The individual flights that make up this leg.
+      - `airline` (string, optional): IATA airline code, e.g. `B6`.
+      - `flightNumber` (string, optional): Airline flight number without the carrier prefix repeated, e.g. `723`.
+      - `origin` (string, optional): Departure airport for this segment.
+      - `destination` (string, optional): Arrival airport for this segment.
+      - `departure` (string, optional): Local departure time, ISO-8601 without a zone, e.g. `2026-12-03T13:59:00`.
+      - `arrival` (string, optional): Local arrival time, same format.
+      - `duration` (integer, optional): Block time in minutes.
+      - `aircraft` (string, optional): Aircraft name when the carrier publishes one.
+  - `bookingOptions` (array of objects, optional): Fares on this itinerary. Details expands each option with a booking URL, bags, and cabin amenities.
+    - `providerCode` (string, optional): IATA code of the selling airline or agency.
+    - `price` (number, optional): Displayed fare in the country’s native currency, per person unless noted.
+    - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+    - `formattedPrice` (string, optional): Same fare, already formatted for display.
+    - `totalPrice` (number, optional): Fare for the whole party.
+    - `formattedTotalPrice` (string, optional): Whole-party fare, formatted.
+    - `isDirect` (boolean, optional): True when this option is sold by the operating carrier.
+    - `isFreeCancellation` (boolean, optional): True when the fare can be cancelled without a fee.
+  - `totalProviders` (integer, optional): How many sellers offered this itinerary.
+  - `isBest` (boolean, optional): True when this is the recommended option.
+  - `isCheapest` (boolean, optional): True when this is the lowest fare on the page.
+- `page` (integer, required): 1-based page number for the token you sent.
+- `hasMore` (boolean, required): True when another page exists.
+- `expiresIn` (integer, required): Seconds remaining on this search.
+- `totalResults` (integer, optional): How many itineraries this search contains.
+- `nextToken` (string, optional): Present when `hasMore` is true. Send it as `token` on the next `/flights/results` call.
+- `availableFilters` (object, optional): Facets of this result set. Each `value` is a valid input on a new `/flights/search`.
+  - `price` (object, optional): Observed price range of the search, in the country’s native currency.
+    - `min` (number, optional): Lowest fare.
+    - `max` (number, optional): Highest fare.
+    - `average` (number, optional): Mean fare.
+    - `currency` (string, optional): ISO 4217 code of the country’s native currency.
+  - `stops` (array of objects, optional): `value` is `0`, `1`, or `2`. Send it back as `maxStops`.
+    - `value` (string or integer, optional): The value to send back on a new search. For airlines this is the IATA code; for cabins it is `economy` / `premiumEconomy` / `business` / `first`; for alliances it is `oneworld` / `skyteam` / `starAlliance`.
+    - `label` (string, optional): Display name.
+    - `minPrice` (number, optional): Cheapest fare in this bucket, or `null` if none.
+    - `count` (integer, optional): How many itineraries fall in this bucket.
+  - `cabins` (array of objects, optional): Feed `value` back as `cabin`.
+    - `value` (string or integer, optional): The value to send back on a new search. For airlines this is the IATA code; for cabins it is `economy` / `premiumEconomy` / `business` / `first`; for alliances it is `oneworld` / `skyteam` / `starAlliance`.
+    - `label` (string, optional): Display name.
+    - `minPrice` (number, optional): Cheapest fare in this bucket, or `null` if none.
+    - `count` (integer, optional): How many itineraries fall in this bucket.
+  - `airlines` (array of objects, optional): Feed `value` back as `airlines`.
+    - `value` (string or integer, optional): The value to send back on a new search. For airlines this is the IATA code; for cabins it is `economy` / `premiumEconomy` / `business` / `first`; for alliances it is `oneworld` / `skyteam` / `starAlliance`.
+    - `label` (string, optional): Display name.
+    - `minPrice` (number, optional): Cheapest fare in this bucket, or `null` if none.
+    - `count` (integer, optional): How many itineraries fall in this bucket.
+  - `alliances` (array of objects, optional): Feed `value` back as `alliances`.
+    - `value` (string or integer, optional): The value to send back on a new search. For airlines this is the IATA code; for cabins it is `economy` / `premiumEconomy` / `business` / `first`; for alliances it is `oneworld` / `skyteam` / `starAlliance`.
+    - `label` (string, optional): Display name.
+    - `minPrice` (number, optional): Cheapest fare in this bucket, or `null` if none.
+    - `count` (integer, optional): How many itineraries fall in this bucket.
+- `providers` (object, optional): Map of provider code to `{ name }` for the sellers on this page.
+
+## Example: Page 1
+
+`GET /flights/results` → 200
+
+Request:
+
+```json
+{
+  "token": "eyJwIjoxLCJzIjoiNDk1NGMzNmY2ZWY1NDdiYWI4NTI3YzA3ZTBlOWNjZjMiLCJ2IjoxfQ"
+}
+```
+
+Response:
+
+```json
+{
+  "flights": [
+    {
+      "id": "31a71cd28ef337786fe1b368caf96730",
+      "legs": [
+        {
+          "departure": "2026-12-03T13:59:00",
+          "arrival": "2026-12-03T17:17:00",
+          "duration": 378,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "B6",
+              "flightNumber": "723",
+              "origin": "JFK",
+              "destination": "LAX",
+              "departure": "2026-12-03T13:59:00",
+              "arrival": "2026-12-03T17:17:00",
+              "duration": 378,
+              "aircraft": "Airbus A318/A319/A320/A321"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "B6",
+          "price": 159,
+          "currency": "USD",
+          "formattedPrice": "$159",
+          "totalPrice": 159,
+          "formattedTotalPrice": "$159",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "B6",
+          "price": 214,
+          "currency": "USD",
+          "formattedPrice": "$214",
+          "totalPrice": 214,
+          "formattedTotalPrice": "$214",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "B6",
+          "price": 294,
+          "currency": "USD",
+          "formattedPrice": "$294",
+          "totalPrice": 294,
+          "formattedTotalPrice": "$294",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": true,
+      "isCheapest": false
+    },
+    {
+      "id": "d4cd86dc2bb25a56b4f3874981b4ca11",
+      "legs": [
+        {
+          "departure": "2026-12-03T10:00:00",
+          "arrival": "2026-12-03T13:19:00",
+          "duration": 379,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "B6",
+              "flightNumber": "223",
+              "origin": "JFK",
+              "destination": "LAX",
+              "departure": "2026-12-03T10:00:00",
+              "arrival": "2026-12-03T13:19:00",
+              "duration": 379,
+              "aircraft": "Airbus A318/A319/A320/A321"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "B6",
+          "price": 159,
+          "currency": "USD",
+          "formattedPrice": "$159",
+          "totalPrice": 159,
+          "formattedTotalPrice": "$159",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "B6",
+          "price": 214,
+          "currency": "USD",
+          "formattedPrice": "$214",
+          "totalPrice": 214,
+          "formattedTotalPrice": "$214",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "B6",
+          "price": 294,
+          "currency": "USD",
+          "formattedPrice": "$294",
+          "totalPrice": 294,
+          "formattedTotalPrice": "$294",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": false
+    },
+    {
+      "id": "bb25bbda9781fe7333bc3b33f49e2e13",
+      "legs": [
+        {
+          "departure": "2026-12-03T12:00:00",
+          "arrival": "2026-12-03T15:04:00",
+          "duration": 364,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "DL",
+              "flightNumber": "1788",
+              "origin": "JFK",
+              "destination": "LAX",
+              "departure": "2026-12-03T12:00:00",
+              "arrival": "2026-12-03T15:04:00",
+              "duration": 364,
+              "aircraft": "Airbus A330-300"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "DL",
+          "price": 215,
+          "currency": "USD",
+          "formattedPrice": "$215",
+          "totalPrice": 215,
+          "formattedTotalPrice": "$215",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "DL",
+          "price": 270,
+          "currency": "USD",
+          "formattedPrice": "$270",
+          "totalPrice": 270,
+          "formattedTotalPrice": "$270",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "DL",
+          "price": 305,
+          "currency": "USD",
+          "formattedPrice": "$305",
+          "totalPrice": 305,
+          "formattedTotalPrice": "$305",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": false
+    }
+  ],
+  "page": 1,
+  "hasMore": true,
+  "expiresIn": 3599,
+  "totalResults": 152,
+  "nextToken": "eyJwIjoyLCJzIjoiNDk1NGMzNmY2ZWY1NDdiYWI4NTI3YzA3ZTBlOWNjZjMiLCJ2IjoxfQ",
+  "availableFilters": {
+    "price": {
+      "min": 159,
+      "max": 13111,
+      "average": 543,
+      "currency": "USD"
+    },
+    "stops": [
+      {
+        "value": 0,
+        "label": "Nonstop",
+        "minPrice": 159,
+        "count": 32
+      },
+      {
+        "value": 1,
+        "label": "1 stop",
+        "minPrice": 225,
+        "count": 87
+      },
+      {
+        "value": 2,
+        "label": "2+ stops",
+        "minPrice": 237,
+        "count": 33
+      }
+    ],
+    "cabins": [
+      {
+        "value": "economy",
+        "label": "Economy",
+        "minPrice": 159,
+        "count": 149
+      },
+      {
+        "value": "premiumEconomy",
+        "label": "Premium Economy",
+        "minPrice": 375,
+        "count": 20
+      },
+      {
+        "value": "business",
+        "label": "Business",
+        "minPrice": 988,
+        "count": 45
+      }
+    ],
+    "airlines": [
+      {
+        "value": "AS",
+        "label": "Alaska Airlines",
+        "minPrice": 225,
+        "count": 59
+      },
+      {
+        "value": "AA",
+        "label": "American Airlines",
+        "minPrice": 215,
+        "count": 33
+      },
+      {
+        "value": "DL",
+        "label": "Delta",
+        "minPrice": 215,
+        "count": 40
+      }
+    ],
+    "alliances": [
+      {
+        "value": "oneworld",
+        "label": "oneworld",
+        "minPrice": 215,
+        "count": 92
+      },
+      {
+        "value": "skyteam",
+        "label": "SkyTeam",
+        "minPrice": 215,
+        "count": 40
+      },
+      {
+        "value": "starAlliance",
+        "label": "Star Alliance",
+        "minPrice": null,
+        "count": 107
+      }
+    ]
+  },
+  "providers": {
+    "AA": {
+      "name": "American Airlines"
+    },
+    "B6": {
+      "name": "JetBlue"
+    },
+    "DL": {
+      "name": "Delta"
+    }
+  }
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/flights/results)._
+
+## Example: Page 2
+
+`GET /flights/results` → 200
+
+Request:
+
+```json
+{
+  "token": "eyJwIjoyLCJzIjoiNDk1NGMzNmY2ZWY1NDdiYWI4NTI3YzA3ZTBlOWNjZjMiLCJ2IjoxfQ"
+}
+```
+
+Response:
+
+```json
+{
+  "flights": [
+    {
+      "id": "e07f78ca1625f1cf6ee283f5958ef947",
+      "legs": [
+        {
+          "departure": "2026-12-03T08:00:00",
+          "arrival": "2026-12-03T11:20:00",
+          "duration": 380,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "DL",
+              "flightNumber": "713",
+              "origin": "JFK",
+              "destination": "LAX",
+              "departure": "2026-12-03T08:00:00",
+              "arrival": "2026-12-03T11:20:00",
+              "duration": 380,
+              "aircraft": "Airbus A330-900neo"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "DL",
+          "price": 215,
+          "currency": "USD",
+          "formattedPrice": "$215",
+          "totalPrice": 215,
+          "formattedTotalPrice": "$215",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "DL",
+          "price": 270,
+          "currency": "USD",
+          "formattedPrice": "$270",
+          "totalPrice": 270,
+          "formattedTotalPrice": "$270",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "DL",
+          "price": 275,
+          "currency": "USD",
+          "formattedPrice": "$275",
+          "totalPrice": 275,
+          "formattedTotalPrice": "$275",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": false
+    },
+    {
+      "id": "72756ddbbfc9b80bd819f89a1f9956c2",
+      "legs": [
+        {
+          "departure": "2026-12-03T16:30:00",
+          "arrival": "2026-12-03T19:56:00",
+          "duration": 386,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AA",
+              "flightNumber": "306",
+              "origin": "JFK",
+              "destination": "LAX",
+              "departure": "2026-12-03T16:30:00",
+              "arrival": "2026-12-03T19:56:00",
+              "duration": 386,
+              "aircraft": "Airbus A321 (sharklets)"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "AA",
+          "price": 215,
+          "currency": "USD",
+          "formattedPrice": "$215",
+          "totalPrice": 215,
+          "formattedTotalPrice": "$215",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AA",
+          "price": 270,
+          "currency": "USD",
+          "formattedPrice": "$270",
+          "totalPrice": 270,
+          "formattedTotalPrice": "$270",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AA",
+          "price": 366,
+          "currency": "USD",
+          "formattedPrice": "$366",
+          "totalPrice": 366,
+          "formattedTotalPrice": "$366",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": false
+    },
+    {
+      "id": "0a31ca45d361aee2277c098194b215b8",
+      "legs": [
+        {
+          "departure": "2026-12-03T17:40:00",
+          "arrival": "2026-12-03T21:06:00",
+          "duration": 386,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AA",
+              "flightNumber": "302",
+              "origin": "JFK",
+              "destination": "LAX",
+              "departure": "2026-12-03T17:40:00",
+              "arrival": "2026-12-03T21:06:00",
+              "duration": 386,
+              "aircraft": "Airbus A321neo"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "AA",
+          "price": 215,
+          "currency": "USD",
+          "formattedPrice": "$215",
+          "totalPrice": 215,
+          "formattedTotalPrice": "$215",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AA",
+          "price": 270,
+          "currency": "USD",
+          "formattedPrice": "$270",
+          "totalPrice": 270,
+          "formattedTotalPrice": "$270",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AA",
+          "price": 366,
+          "currency": "USD",
+          "formattedPrice": "$366",
+          "totalPrice": 366,
+          "formattedTotalPrice": "$366",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": false
+    }
+  ],
+  "page": 2,
+  "hasMore": true,
+  "expiresIn": 3598,
+  "totalResults": 152,
+  "nextToken": "eyJwIjozLCJzIjoiNDk1NGMzNmY2ZWY1NDdiYWI4NTI3YzA3ZTBlOWNjZjMiLCJ2IjoxfQ",
+  "availableFilters": {
+    "price": {
+      "min": 159,
+      "max": 13111,
+      "average": 543,
+      "currency": "USD"
+    },
+    "stops": [
+      {
+        "value": 0,
+        "label": "Nonstop",
+        "minPrice": 159,
+        "count": 32
+      },
+      {
+        "value": 1,
+        "label": "1 stop",
+        "minPrice": 225,
+        "count": 87
+      },
+      {
+        "value": 2,
+        "label": "2+ stops",
+        "minPrice": 237,
+        "count": 33
+      }
+    ],
+    "cabins": [
+      {
+        "value": "economy",
+        "label": "Economy",
+        "minPrice": 159,
+        "count": 149
+      },
+      {
+        "value": "premiumEconomy",
+        "label": "Premium Economy",
+        "minPrice": 375,
+        "count": 20
+      },
+      {
+        "value": "business",
+        "label": "Business",
+        "minPrice": 988,
+        "count": 45
+      }
+    ],
+    "airlines": [
+      {
+        "value": "AS",
+        "label": "Alaska Airlines",
+        "minPrice": 225,
+        "count": 59
+      },
+      {
+        "value": "AA",
+        "label": "American Airlines",
+        "minPrice": 215,
+        "count": 33
+      },
+      {
+        "value": "DL",
+        "label": "Delta",
+        "minPrice": 215,
+        "count": 40
+      }
+    ],
+    "alliances": [
+      {
+        "value": "oneworld",
+        "label": "oneworld",
+        "minPrice": 215,
+        "count": 92
+      },
+      {
+        "value": "skyteam",
+        "label": "SkyTeam",
+        "minPrice": 215,
+        "count": 40
+      },
+      {
+        "value": "starAlliance",
+        "label": "Star Alliance",
+        "minPrice": null,
+        "count": 107
+      }
+    ]
+  },
+  "providers": {
+    "AA": {
+      "name": "American Airlines"
+    },
+    "AS": {
+      "name": "Alaska Airlines"
+    },
+    "DL": {
+      "name": "Delta"
+    },
+    "ASWHISKY": {
+      "name": "Alaska Airlines"
+    }
+  }
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/flights/results)._
+
+## Example: Round trip, page 1
+
+`GET /flights/results` → 200
+
+Request:
+
+```json
+{
+  "token": "eyJwIjoxLCJzIjoiODRiZjZlYzU3ZGQyNDJkZDk4NmZhNzAzM2JhY2I3ODkiLCJ2IjoxfQ"
+}
+```
+
+Response:
+
+```json
+{
+  "flights": [
+    {
+      "id": "07804f9e1b83425f0e30951ae0c29a9a",
+      "legs": [
+        {
+          "departure": "2026-12-03T21:15:00",
+          "arrival": "2026-12-04T09:15:00",
+          "duration": 420,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AA",
+              "flightNumber": "104",
+              "origin": "JFK",
+              "destination": "LHR",
+              "departure": "2026-12-03T21:15:00",
+              "arrival": "2026-12-04T09:15:00",
+              "duration": 420,
+              "aircraft": "Boeing 787-9 Dreamliner"
+            }
+          ]
+        },
+        {
+          "departure": "2026-12-10T19:20:00",
+          "arrival": "2026-12-10T22:25:00",
+          "duration": 485,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AA",
+              "flightNumber": "6942",
+              "origin": "LHR",
+              "destination": "JFK",
+              "departure": "2026-12-10T19:20:00",
+              "arrival": "2026-12-10T22:25:00",
+              "duration": 485,
+              "aircraft": "Boeing 777"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "AA",
+          "price": 830,
+          "currency": "USD",
+          "formattedPrice": "$830",
+          "totalPrice": 1659,
+          "formattedTotalPrice": "$1,659",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AA",
+          "price": 1070,
+          "currency": "USD",
+          "formattedPrice": "$1,070",
+          "totalPrice": 2139,
+          "formattedTotalPrice": "$2,139",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": true,
+      "isCheapest": false
+    },
+    {
+      "id": "26253ca87e823ccb9ef262c410c733c7",
+      "legs": [
+        {
+          "departure": "2026-12-03T08:05:00",
+          "arrival": "2026-12-03T20:00:00",
+          "duration": 415,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AA",
+              "flightNumber": "6939",
+              "origin": "JFK",
+              "destination": "LHR",
+              "departure": "2026-12-03T08:05:00",
+              "arrival": "2026-12-03T20:00:00",
+              "duration": 415,
+              "aircraft": "Boeing 777"
+            }
+          ]
+        },
+        {
+          "departure": "2026-12-10T18:05:00",
+          "arrival": "2026-12-10T21:10:00",
+          "duration": 485,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AA",
+              "flightNumber": "6940",
+              "origin": "LHR",
+              "destination": "JFK",
+              "departure": "2026-12-10T18:05:00",
+              "arrival": "2026-12-10T21:10:00",
+              "duration": 485,
+              "aircraft": "Boeing 777"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "AA",
+          "price": 830,
+          "currency": "USD",
+          "formattedPrice": "$830",
+          "totalPrice": 1659,
+          "formattedTotalPrice": "$1,659",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AA",
+          "price": 1070,
+          "currency": "USD",
+          "formattedPrice": "$1,070",
+          "totalPrice": 2139,
+          "formattedTotalPrice": "$2,139",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": true
+    },
+    {
+      "id": "776442bf2801c050166cb6a027ef8bbd",
+      "legs": [
+        {
+          "departure": "2026-12-03T21:15:00",
+          "arrival": "2026-12-04T09:15:00",
+          "duration": 420,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AY",
+              "flightNumber": "3774",
+              "origin": "JFK",
+              "destination": "LHR",
+              "departure": "2026-12-03T21:15:00",
+              "arrival": "2026-12-04T09:15:00",
+              "duration": 420,
+              "aircraft": "Boeing 787-9 Dreamliner"
+            }
+          ]
+        },
+        {
+          "departure": "2026-12-10T17:00:00",
+          "arrival": "2026-12-10T20:05:00",
+          "duration": 485,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AY",
+              "flightNumber": "3786",
+              "origin": "LHR",
+              "destination": "JFK",
+              "departure": "2026-12-10T17:00:00",
+              "arrival": "2026-12-10T20:05:00",
+              "duration": 485,
+              "aircraft": "Boeing 777-200/200ER"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "AY",
+          "price": 830,
+          "currency": "USD",
+          "formattedPrice": "$830",
+          "totalPrice": 1659,
+          "formattedTotalPrice": "$1,659",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AY",
+          "price": 1070,
+          "currency": "USD",
+          "formattedPrice": "$1,070",
+          "totalPrice": 2139,
+          "formattedTotalPrice": "$2,139",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AY",
+          "price": 1295,
+          "currency": "USD",
+          "formattedPrice": "$1,295",
+          "totalPrice": 2589,
+          "formattedTotalPrice": "$2,589",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": false
+    }
+  ],
+  "page": 1,
+  "hasMore": true,
+  "expiresIn": 3598,
+  "totalResults": 700,
+  "nextToken": "eyJwIjoyLCJzIjoiODRiZjZlYzU3ZGQyNDJkZDk4NmZhNzAzM2JhY2I3ODkiLCJ2IjoxfQ",
+  "availableFilters": {
+    "price": {
+      "min": 665,
+      "max": 13931,
+      "average": 1790,
+      "currency": "USD"
+    },
+    "stops": [
+      {
+        "value": 0,
+        "label": "Nonstop",
+        "minPrice": 830,
+        "count": 1139
+      },
+      {
+        "value": 1,
+        "label": "1 stop",
+        "minPrice": 665,
+        "count": 711
+      },
+      {
+        "value": 2,
+        "label": "2+ stops",
+        "minPrice": null,
+        "count": 11
+      }
+    ],
+    "cabins": [
+      {
+        "value": "economy",
+        "label": "Economy",
+        "minPrice": 830,
+        "count": 700
+      },
+      {
+        "value": "premiumEconomy",
+        "label": "Premium Economy",
+        "minPrice": 3626,
+        "count": 144
+      },
+      {
+        "value": "business",
+        "label": "Business",
+        "minPrice": 6388,
+        "count": 192
+      }
+    ],
+    "airlines": [
+      {
+        "value": "EI",
+        "label": "Aer Lingus",
+        "minPrice": null,
+        "count": 71
+      },
+      {
+        "value": "AM",
+        "label": "Aeromexico",
+        "minPrice": null,
+        "count": 4
+      },
+      {
+        "value": "UX",
+        "label": "Air Europa",
+        "minPrice": null,
+        "count": 3
+      }
+    ],
+    "alliances": [
+      {
+        "value": "oneworld",
+        "label": "oneworld",
+        "minPrice": 830,
+        "count": 552
+      },
+      {
+        "value": "skyteam",
+        "label": "SkyTeam",
+        "minPrice": 830,
+        "count": 144
+      },
+      {
+        "value": "starAlliance",
+        "label": "Star Alliance",
+        "minPrice": null,
+        "count": 601
+      }
+    ]
+  },
+  "providers": {
+    "AA": {
+      "name": "American Airlines"
+    },
+    "DL": {
+      "name": "Delta"
+    },
+    "AY": {
+      "name": "Finnair"
+    },
+    "IB": {
+      "name": "Iberia"
+    }
+  }
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/flights/results)._
+
+## Example: Multi-city, page 1
+
+`GET /flights/results` → 200
+
+Request:
+
+```json
+{
+  "token": "eyJwIjoxLCJzIjoiZjVmZDc1YzM4NTM5NDhkZGE2ZjAyZjE3MDQ3ZjNmM2EiLCJ2IjoxfQ"
+}
+```
+
+Response:
+
+```json
+{
+  "flights": [
+    {
+      "id": "84604222a90ff5883c97f139be649c27",
+      "legs": [
+        {
+          "departure": "2026-12-03T17:29:00",
+          "arrival": "2026-12-03T23:12:00",
+          "duration": 523,
+          "stops": 1,
+          "segments": [
+            {
+              "airline": "AS",
+              "flightNumber": "41",
+              "origin": "JFK",
+              "destination": "SFO",
+              "departure": "2026-12-03T17:29:00",
+              "arrival": "2026-12-03T21:05:00",
+              "duration": 396,
+              "aircraft": "Boeing 737 MAX 9"
+            },
+            {
+              "airline": "AS",
+              "flightNumber": "661",
+              "origin": "SFO",
+              "destination": "LAX",
+              "departure": "2026-12-03T21:45:00",
+              "arrival": "2026-12-03T23:12:00",
+              "duration": 87,
+              "aircraft": "Boeing 737-900 (winglets)"
+            }
+          ]
+        },
+        {
+          "departure": "2026-12-10T13:50:00",
+          "arrival": "2026-12-10T15:16:00",
+          "duration": 86,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AS",
+              "flightNumber": "465",
+              "origin": "LAX",
+              "destination": "SFO",
+              "departure": "2026-12-10T13:50:00",
+              "arrival": "2026-12-10T15:16:00",
+              "duration": 86,
+              "aircraft": "Boeing 737 MAX 9"
+            }
+          ]
+        },
+        {
+          "departure": "2026-12-17T09:10:00",
+          "arrival": "2026-12-17T22:29:00",
+          "duration": 619,
+          "stops": 1,
+          "segments": [
+            {
+              "airline": "AS",
+              "flightNumber": "3178",
+              "origin": "SFO",
+              "destination": "PSP",
+              "departure": "2026-12-17T09:10:00",
+              "arrival": "2026-12-17T10:51:00",
+              "duration": 101,
+              "aircraft": "Embraer 175"
+            },
+            {
+              "airline": "AS",
+              "flightNumber": "242",
+              "origin": "PSP",
+              "destination": "JFK",
+              "departure": "2026-12-17T14:14:00",
+              "arrival": "2026-12-17T22:29:00",
+              "duration": 315,
+              "aircraft": "Boeing 737-800 (winglets)"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "AS",
+          "price": 463,
+          "currency": "USD",
+          "formattedPrice": "$463",
+          "totalPrice": 463,
+          "formattedTotalPrice": "$463",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AS",
+          "price": 628,
+          "currency": "USD",
+          "formattedPrice": "$628",
+          "totalPrice": 628,
+          "formattedTotalPrice": "$628",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": true
+    },
+    {
+      "id": "07b8838a3b0cabc4c7e90a358f0d4238",
+      "legs": [
+        {
+          "departure": "2026-12-03T17:29:00",
+          "arrival": "2026-12-03T23:12:00",
+          "duration": 523,
+          "stops": 1,
+          "segments": [
+            {
+              "airline": "AS",
+              "flightNumber": "41",
+              "origin": "JFK",
+              "destination": "SFO",
+              "departure": "2026-12-03T17:29:00",
+              "arrival": "2026-12-03T21:05:00",
+              "duration": 396,
+              "aircraft": "Boeing 737 MAX 9"
+            },
+            {
+              "airline": "AS",
+              "flightNumber": "661",
+              "origin": "SFO",
+              "destination": "LAX",
+              "departure": "2026-12-03T21:45:00",
+              "arrival": "2026-12-03T23:12:00",
+              "duration": 87,
+              "aircraft": "Boeing 737-900 (winglets)"
+            }
+          ]
+        },
+        {
+          "departure": "2026-12-10T15:44:00",
+          "arrival": "2026-12-10T17:10:00",
+          "duration": 86,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AS",
+              "flightNumber": "91",
+              "origin": "LAX",
+              "destination": "SFO",
+              "departure": "2026-12-10T15:44:00",
+              "arrival": "2026-12-10T17:10:00",
+              "duration": 86,
+              "aircraft": "Boeing 737-900 (winglets)"
+            }
+          ]
+        },
+        {
+          "departure": "2026-12-17T09:10:00",
+          "arrival": "2026-12-17T22:29:00",
+          "duration": 619,
+          "stops": 1,
+          "segments": [
+            {
+              "airline": "AS",
+              "flightNumber": "3178",
+              "origin": "SFO",
+              "destination": "PSP",
+              "departure": "2026-12-17T09:10:00",
+              "arrival": "2026-12-17T10:51:00",
+              "duration": 101,
+              "aircraft": "Embraer 175"
+            },
+            {
+              "airline": "AS",
+              "flightNumber": "242",
+              "origin": "PSP",
+              "destination": "JFK",
+              "departure": "2026-12-17T14:14:00",
+              "arrival": "2026-12-17T22:29:00",
+              "duration": 315,
+              "aircraft": "Boeing 737-800 (winglets)"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "AS",
+          "price": 463,
+          "currency": "USD",
+          "formattedPrice": "$463",
+          "totalPrice": 463,
+          "formattedTotalPrice": "$463",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AS",
+          "price": 628,
+          "currency": "USD",
+          "formattedPrice": "$628",
+          "totalPrice": 628,
+          "formattedTotalPrice": "$628",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": false
+    },
+    {
+      "id": "fdd9cbb6d1ebf89d459ab7b636c5404f",
+      "legs": [
+        {
+          "departure": "2026-12-03T17:29:00",
+          "arrival": "2026-12-03T23:12:00",
+          "duration": 523,
+          "stops": 1,
+          "segments": [
+            {
+              "airline": "AS",
+              "flightNumber": "41",
+              "origin": "JFK",
+              "destination": "SFO",
+              "departure": "2026-12-03T17:29:00",
+              "arrival": "2026-12-03T21:05:00",
+              "duration": 396,
+              "aircraft": "Boeing 737 MAX 9"
+            },
+            {
+              "airline": "AS",
+              "flightNumber": "661",
+              "origin": "SFO",
+              "destination": "LAX",
+              "departure": "2026-12-03T21:45:00",
+              "arrival": "2026-12-03T23:12:00",
+              "duration": 87,
+              "aircraft": "Boeing 737-900 (winglets)"
+            }
+          ]
+        },
+        {
+          "departure": "2026-12-10T12:43:00",
+          "arrival": "2026-12-10T14:09:00",
+          "duration": 86,
+          "stops": 0,
+          "segments": [
+            {
+              "airline": "AS",
+              "flightNumber": "640",
+              "origin": "LAX",
+              "destination": "SFO",
+              "departure": "2026-12-10T12:43:00",
+              "arrival": "2026-12-10T14:09:00",
+              "duration": 86,
+              "aircraft": "Boeing 737-900 (winglets)"
+            }
+          ]
+        },
+        {
+          "departure": "2026-12-17T09:10:00",
+          "arrival": "2026-12-17T22:29:00",
+          "duration": 619,
+          "stops": 1,
+          "segments": [
+            {
+              "airline": "AS",
+              "flightNumber": "3178",
+              "origin": "SFO",
+              "destination": "PSP",
+              "departure": "2026-12-17T09:10:00",
+              "arrival": "2026-12-17T10:51:00",
+              "duration": 101,
+              "aircraft": "Embraer 175"
+            },
+            {
+              "airline": "AS",
+              "flightNumber": "242",
+              "origin": "PSP",
+              "destination": "JFK",
+              "departure": "2026-12-17T14:14:00",
+              "arrival": "2026-12-17T22:29:00",
+              "duration": 315,
+              "aircraft": "Boeing 737-800 (winglets)"
+            }
+          ]
+        }
+      ],
+      "bookingOptions": [
+        {
+          "providerCode": "AS",
+          "price": 463,
+          "currency": "USD",
+          "formattedPrice": "$463",
+          "totalPrice": 463,
+          "formattedTotalPrice": "$463",
+          "isDirect": true,
+          "isFreeCancellation": true
+        },
+        {
+          "providerCode": "AS",
+          "price": 628,
+          "currency": "USD",
+          "formattedPrice": "$628",
+          "totalPrice": 628,
+          "formattedTotalPrice": "$628",
+          "isDirect": true,
+          "isFreeCancellation": true
+        }
+      ],
+      "totalProviders": 1,
+      "isBest": false,
+      "isCheapest": false
+    }
+  ],
+  "page": 1,
+  "hasMore": true,
+  "expiresIn": 3598,
+  "totalResults": 829,
+  "nextToken": "eyJwIjoyLCJzIjoiZjVmZDc1YzM4NTM5NDhkZGE2ZjAyZjE3MDQ3ZjNmM2EiLCJ2IjoxfQ",
+  "availableFilters": {
+    "price": {
+      "min": 402,
+      "max": 4481,
+      "average": 1202,
+      "currency": "USD"
+    },
+    "stops": [
+      {
+        "value": 0,
+        "label": "Nonstop",
+        "minPrice": 587,
+        "count": 829
+      },
+      {
+        "value": 1,
+        "label": "1 stop",
+        "minPrice": null,
+        "count": 445
+      },
+      {
+        "value": 2,
+        "label": "2+ stops",
+        "minPrice": null,
+        "count": 0
+      }
+    ],
+    "cabins": [
+      {
+        "value": "economy",
+        "label": "Economy",
+        "minPrice": 463,
+        "count": 582
+      },
+      {
+        "value": "premiumEconomy",
+        "label": "Premium Economy",
+        "minPrice": null,
+        "count": 29
+      },
+      {
+        "value": "business",
+        "label": "Business",
+        "minPrice": 2046,
+        "count": 63
+      }
+    ],
+    "airlines": [
+      {
+        "value": "AS",
+        "label": "Alaska Airlines",
+        "minPrice": 463,
+        "count": 91
+      },
+      {
+        "value": "AA",
+        "label": "American Airlines",
+        "minPrice": 466,
+        "count": 200
+      },
+      {
+        "value": "DL",
+        "label": "Delta",
+        "minPrice": 596,
+        "count": 538
+      }
+    ],
+    "alliances": [
+      {
+        "value": "oneworld",
+        "label": "oneworld",
+        "minPrice": 463,
+        "count": 291
+      },
+      {
+        "value": "skyteam",
+        "label": "SkyTeam",
+        "minPrice": 596,
+        "count": 487
+      }
+    ]
+  },
+  "providers": {
+    "AS": {
+      "name": "Alaska Airlines"
+    }
+  }
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/flights/results)._
+
+## Skill
+
+Claude Code, Cursor, and Codex can search with the Ktemia skills: `flight-search`, `car-search`, and `hotel-search`.
+https://github.com/Ktemiaa/ktemia-skills
+
+Install in Claude Code:
+
+```
+/plugin marketplace add Ktemiaa/ktemia-skills
+/plugin install ktemia@ktemia
+```
+
+Set `KTEMIA_API_KEY` in the environment. The flight skill looks up airport codes, asks when a name matches several cities, and returns each seller’s booking URL. It does not book tickets. Do not guess origin, destination, or dates.
+
+Docs: https://www.ktemia.com/docs/api/flights/results/

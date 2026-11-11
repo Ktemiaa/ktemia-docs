@@ -1,0 +1,218 @@
+---
+title: "The Car object"
+---
+
+One vehicle: the car, the desk, and the sellers on it.
+
+A car is one vehicle you can hire for the dates you searched. `bookingOptions` is the short list of sellers and prices. `id` is stable for the life of the search token and meaningless after it expires.
+
+## Attributes
+
+- `id` (string, required): Opaque identifier of this car. Pass it as `resultId` to `/cars/details`.
+- `car` (object, optional): The vehicle.
+  - `name` (string, optional): Vehicle name as listed, for example `Nissan Versa`.
+  - `class` (string, optional): Display class, for example `Compact` or `Intermediate SUV`.
+  - `classGroups` (array of strings, optional): Groups this car belongs to, such as `small` or `suv`. Matches `carClass` on a new search.
+  - `image` (string, optional): Image URL.
+  - `passengers` (integer, optional): Seat count.
+  - `bags` (integer, optional): Bag count.
+  - `doors` (integer, optional): Door count.
+  - `transmission` (string, optional): `automatic` or `manual`.
+  - `airConditioning` (boolean, optional): True when the car has air conditioning.
+  - `fuelType` (string, optional): Fuel label, for example `Gas` or `Fully electric`.
+  - `sipCode` (string, optional): ACRISS / SIP code when the supplier publishes one.
+- `agency` (object, optional): The rental company that owns the car.
+  - `code` (string, optional): Agency code.
+  - `name` (string, optional): Display name, for example `Europcar`.
+- `pickup` (object, optional): The pickup desk.
+  - `locationId` (string, optional): Desk id. Different from the city id you sent as `pickupLocation`.
+  - `type` (string, optional): Desk type, for example `IN_TERMINAL` or `NON_AIRPORT`.
+  - `isAirport` (boolean, optional): True when the desk is at an airport.
+  - `airportCode` (string, optional): IATA airport code when `isAirport` is true.
+  - `address` (string, optional): Street address when the supplier publishes one.
+  - `city` (string, optional): City of the desk.
+  - `country` (string, optional): ISO 3166-1 alpha-2 country code.
+  - `distance` (string, optional): Distance from the city centre, already formatted.
+  - `lat` (number, optional): Latitude.
+  - `lng` (number, optional): Longitude.
+  - `rating` (object, optional): Desk reviews.
+    - `overall` (number, optional): Desk score on a 0–10 scale.
+    - `label` (string, optional): Short label for the score, for example `good`.
+    - `count` (integer, optional): How many reviews the score is based on.
+    - `breakdowns` (array of objects, optional): Per-category scores when the supplier publishes them.
+  - `operatingHours` (array of objects, optional): Opening hours. `open` and `close` are `HHMM` integers, for example `730` is 07:30.
+- `price` (object, optional): Lowest total price on this car.
+  - `amount` (number, optional): Numeric amount in the country’s native currency.
+  - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+  - `formatted` (string, optional): Same amount, already formatted for display.
+- `bestOption` (object, optional): The cheapest seller for this car. Details expands every seller.
+  - `provider` (string, optional): Seller code of the cheapest option.
+  - `price` (object, optional): Total price.
+    - `amount` (number, optional): Numeric amount in the country’s native currency.
+    - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+    - `formatted` (string, optional): Same amount, already formatted for display.
+  - `perDay` (object, optional): Average daily price.
+    - `amount` (number, optional): Numeric amount in the country’s native currency.
+    - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+    - `formatted` (string, optional): Same amount, already formatted for display.
+  - `paymentType` (string, optional): `PREPAY` or `PAY_AT_PICKUP`.
+  - `freeCancellation` (boolean, optional): True when this option can be cancelled without a fee.
+  - `mileage` (string, optional): Mileage allowance, already formatted.
+  - `fuelPolicy` (string, optional): Fuel policy name, for example `full-to-full`.
+- `bookingOptions` (array of objects, optional): Sellers for this car. Details fills in `providerUrl` on each one.
+  - `provider` (string, optional): Seller code. `providers` on the page maps it to a display name.
+  - `providerName` (string, optional): Display name of the seller.
+  - `price` (object, optional): Total price for the hire.
+    - `amount` (number, optional): Numeric amount in the country’s native currency.
+    - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+    - `formatted` (string, optional): Same amount, already formatted for display.
+  - `perDay` (object, optional): Average daily price.
+    - `amount` (number, optional): Numeric amount in the country’s native currency.
+    - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+    - `formatted` (string, optional): Same amount, already formatted for display.
+  - `paymentType` (string, optional): `PREPAY` or `PAY_AT_PICKUP`.
+  - `freeCancellation` (boolean, optional): True when this option can be cancelled without a fee.
+- `optionCount` (integer, optional): How many sellers offered this car.
+- `badges` (array of objects, optional): Highlights such as a discount label.
+- `discount` (object, optional): How this price compares with the class average, when published.
+- `viewRank` (integer, optional): Rank of this car in the search.
+
+## Example
+
+```json
+{
+  "id": "2b0173a66e41e77c3658adb6028886f7",
+  "car": {
+    "name": "Nissan Versa",
+    "class": "Compact",
+    "classGroups": [
+      "small"
+    ],
+    "image": "https://content.r9cdn.net/rimg/car-images/generic/34_sedan_gray.png?…",
+    "passengers": 5,
+    "bags": 3,
+    "doors": 4,
+    "transmission": "automatic",
+    "airConditioning": true,
+    "fuelType": "Gas",
+    "sipCode": "CCAR"
+  },
+  "agency": {
+    "code": "europcar",
+    "name": "Europcar"
+  },
+  "pickup": {
+    "locationId": "20015907",
+    "type": "IN_TERMINAL",
+    "isAirport": true,
+    "airportCode": "AUS",
+    "address": "Please Go To Fox Counter",
+    "city": "Austin",
+    "country": "US",
+    "distance": "7.4 mi from city center",
+    "lat": 30.19453,
+    "lng": -97.66987,
+    "rating": {
+      "overall": 6,
+      "label": "good",
+      "count": 6,
+      "breakdowns": null
+    },
+    "operatingHours": null
+  },
+  "price": {
+    "amount": 189,
+    "currency": "USD",
+    "formatted": "$189"
+  },
+  "bestOption": {
+    "provider": "IEUROPCAR",
+    "price": {
+      "amount": 189,
+      "currency": "USD",
+      "formatted": "$189"
+    },
+    "perDay": {
+      "amount": 27,
+      "currency": "USD",
+      "formatted": "$27"
+    },
+    "paymentType": "PREPAY",
+    "freeCancellation": true,
+    "mileage": "Unlimited miles",
+    "fuelPolicy": "full-to-full"
+  },
+  "bookingOptions": [
+    {
+      "provider": "IEUROPCAR",
+      "providerName": "Europcar",
+      "price": {
+        "amount": 189,
+        "currency": "USD",
+        "formatted": "$189"
+      },
+      "perDay": {
+        "amount": 27,
+        "currency": "USD",
+        "formatted": "$27"
+      },
+      "paymentType": "PREPAY",
+      "freeCancellation": true
+    },
+    {
+      "provider": "IEXPEDIACARAPI",
+      "providerName": "Expedia",
+      "price": {
+        "amount": 256,
+        "currency": "USD",
+        "formatted": "$256"
+      },
+      "perDay": {
+        "amount": 37,
+        "currency": "USD",
+        "formatted": "$37"
+      },
+      "paymentType": "PREPAY",
+      "freeCancellation": true
+    },
+    {
+      "provider": "IEXPEDIACARAPI",
+      "providerName": "Expedia",
+      "price": {
+        "amount": 265,
+        "currency": "USD",
+        "formatted": "$265"
+      },
+      "perDay": {
+        "amount": 38,
+        "currency": "USD",
+        "formatted": "$38"
+      },
+      "paymentType": "PAY_AT_PICKUP",
+      "freeCancellation": true
+    }
+  ],
+  "optionCount": 5,
+  "badges": [
+    {
+      "type": "greatDeal",
+      "label": "38% cheaper",
+      "description": "This offer is 38% cheaper than the average small size car offer ($305)"
+    }
+  ],
+  "discount": {
+    "percent": 38,
+    "classType": "small",
+    "classAvgPrice": {
+      "amount": 304.98,
+      "currency": "USD",
+      "formatted": "$305"
+    }
+  },
+  "viewRank": 2
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/objects/car)._
+
+Docs: https://www.ktemia.com/docs/api/objects/car/

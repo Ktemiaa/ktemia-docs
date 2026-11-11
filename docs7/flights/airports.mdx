@@ -1,0 +1,232 @@
+---
+title: "Search airports"
+---
+
+Look up an airport or city code by name. Use the code as origin or destination on a flight search. Code in cURL, Python, Node, Go, Java, Ruby, and PHP.
+
+Base URL: https://api.ktemia.com
+Authentication: send header `X-API-Key` on every request.
+
+`GET /flights/airports`
+
+Find the airport and city codes a flight search accepts.
+
+Origins and destinations on a flight search are airport or city codes, not names. This call turns a name or a code into the `code` you send as `origin` or `destination`.
+
+Send `X-API-Key` the same way as on every other call. `query` is required. `country` and `locale` are optional and default to US and `en`.
+
+## Which code to send
+
+Use `airports[].code`. When `allAirports` is true, the code covers every airport in that city: `LON` is London, `NYC` is New York. A false value is one airport, such as `LHR` or `JFK`.
+
+A query that matches nothing returns `200` with an empty `airports` list. A missing `query`, a blank `query`, a bad `locale`, or an unsupported `country` returns `400`. If the lookup itself fails, the response is `502 AIRPORTS_UNAVAILABLE`.
+
+Airline codes for the `airlines` filter come from [Search airlines](/flights/airlines). Send `code` from that response. A name is rejected on the search.
+
+## Read more
+
+Why an agent should ask when a name matches several cities: [flights MCP](https://www.ktemia.com/blog/flights-mcp/). The lookup as the first step of a full search: [flight search API](https://www.ktemia.com/blog/flight-search-api/).
+
+## Query parameters
+
+- `query` (string, required): Airport name, city name, or code. 1 to 80 characters. A blank value is rejected.
+- `country` (string, optional): ISO 3166-1 alpha-2 market. Omit it for US. Any other value is rejected. Same set as on a flight search.
+  - `US`
+  - `GB`
+  - `DE`
+  - `FR`
+  - `ES`
+  - `IT`
+  - `NL`
+  - `BE`
+  - `AT`
+  - `CH`
+  - `IE`
+  - `PT`
+  - `GR`
+  - `PL`
+  - `CZ`
+  - `RO`
+  - `SE`
+  - `NO`
+  - `DK`
+  - `FI`
+  - `TR`
+  - `AE`
+  - `SA`
+  - `IL`
+  - `IN`
+  - `JP`
+  - `KR`
+  - `HK`
+  - `TW`
+  - `SG`
+  - `MY`
+  - `TH`
+  - `ID`
+  - `PH`
+  - `VN`
+  - `AU`
+  - `NZ`
+  - `CA`
+  - `MX`
+  - `BR`
+  - `AR`
+  - `CL`
+  - `CO`
+  - `PE`
+  - `UY`
+  - `PY`
+  - `BO`
+  - `EC`
+  - `VE`
+  - `CR`
+  - `PA`
+  - `GT`
+  - `HN`
+  - `NI`
+  - `SV`
+  - `DO`
+  - `PR`
+  - `ZA`
+  - `UA`
+- `locale` (string, optional): 2-letter language code. Omit it for `en`. Anything that is not two letters is rejected.
+
+## Response fields
+
+- `query` (string, required): The query you sent, with surrounding spaces removed.
+- `airports` (array of objects, required): Matching airports, best match first. Empty when nothing matches.
+  - `code` (string, required): IATA airport or city code. Send this as `origin` or `destination` on [Search flights](/flights/search).
+  - `name` (string, optional): Airport name. For a city code this is `All airports`.
+  - `city` (string, optional): City the airport serves.
+  - `region` (string, optional): State, province, or region. Null when the place has none.
+  - `country` (string, optional): Country name.
+  - `countryCode` (string, optional): ISO 3166-1 alpha-2 country code.
+  - `timezone` (string, optional): IANA timezone, for example `America/Chicago`.
+  - `allAirports` (boolean, optional): True when `code` is a city code that covers every airport in that city, such as `NYC` or `LON`.
+
+## Example: London
+
+`GET /flights/airports` → 200
+
+Request:
+
+```json
+{
+  "query": "london",
+  "country": null,
+  "locale": null
+}
+```
+
+Response:
+
+```json
+{
+  "query": "london",
+  "airports": [
+    {
+      "code": "LON",
+      "name": "All airports",
+      "city": "London",
+      "region": "England",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "timezone": "Europe/London",
+      "allAirports": true
+    },
+    {
+      "code": "LHR",
+      "name": "Heathrow",
+      "city": "London",
+      "region": "England",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "timezone": "Europe/London",
+      "allAirports": false
+    },
+    {
+      "code": "LGW",
+      "name": "Gatwick",
+      "city": "London",
+      "region": "England",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "timezone": "Europe/London",
+      "allAirports": false
+    }
+  ]
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/flights/airports)._
+
+## Example: Austin
+
+`GET /flights/airports` → 200
+
+Request:
+
+```json
+{
+  "query": "austin",
+  "country": null,
+  "locale": null
+}
+```
+
+Response:
+
+```json
+{
+  "query": "austin",
+  "airports": [
+    {
+      "code": "AUS",
+      "name": "Austin Bergstrom",
+      "city": "Austin",
+      "region": "Texas",
+      "country": "United States",
+      "countryCode": "US",
+      "timezone": "America/Chicago",
+      "allAirports": false
+    },
+    {
+      "code": "ASQ",
+      "name": "Austin",
+      "city": "Austin",
+      "region": "Nevada",
+      "country": "United States",
+      "countryCode": "US",
+      "timezone": "America/Los_Angeles",
+      "allAirports": false
+    },
+    {
+      "code": "GRB",
+      "name": "Austin-Straubel",
+      "city": "Green Bay",
+      "region": "Wisconsin",
+      "country": "United States",
+      "countryCode": "US",
+      "timezone": "America/Chicago",
+      "allAirports": false
+    }
+  ]
+}
+```
+
+## Skill
+
+Claude Code, Cursor, and Codex can search with the Ktemia skills: `flight-search`, `car-search`, and `hotel-search`.
+https://github.com/Ktemiaa/ktemia-skills
+
+Install in Claude Code:
+
+```
+/plugin marketplace add Ktemiaa/ktemia-skills
+/plugin install ktemia@ktemia
+```
+
+Set `KTEMIA_API_KEY` in the environment. The flight skill looks up airport codes, asks when a name matches several cities, and returns each seller’s booking URL. It does not book tickets. Do not guess origin, destination, or dates.
+
+Docs: https://www.ktemia.com/docs/api/flights/airports/

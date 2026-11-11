@@ -1,0 +1,177 @@
+---
+title: "Search cars"
+---
+
+Car rental API, rentals API, and car hire API in Python, JavaScript, Go, Ruby, Java, and PHP. Start a rental cars search for a pickup and dates. Returns a token, not results. cURL included.
+
+Base URL: https://api.ktemia.com
+Authentication: send header `X-API-Key` on every request.
+
+`POST /cars/search`
+
+Start a search. Returns a token, not results.
+
+This call returns a `searchToken`. It does not return cars. An Austin week usually answers in 3–12 seconds while the search settles.
+
+## Country and currency
+
+Send `country` to pick the market. Prices come back in that country’s native currency. `GB` returns GBP, `DE` returns EUR, `US` returns USD. Omit `country` and the market is the US, so prices are USD.
+
+There is no `currency` field on this call. Sending one is rejected. You cannot ask for US prices in GBP, or UK prices in USD - the country decides the currency.
+
+## Pickup, dates, times
+
+Send `pickupLocation`, `pickupDate`, and `dropoffDate`. Add `dropoffLocation` only when the car is returned somewhere else. Times default to `12:00`; minutes must be `00` or `30`.
+
+`pickupLocation` is an id, not a name. Look it up with [Search locations](/cars/locations) and send `locationId`.
+
+## When there is nothing to page
+
+If there are no cars, the call returns `404 NO_RESULTS` and no token. A date further than a year out, or an id that is not a pickup place, is the usual cause.
+
+## Cars from one booking site or rental company
+
+Send `providers` to keep only the prices one or more booking sites sell, for example `["Expedia"]`. Send `agencies` to keep only the cars of one or more rental companies, for example `["avis"]`, whichever site sells them. At Austin airport, both came back with 20 cars on page 1, every one from Expedia or Avis.
+
+The ids come from the data. Run a search without a filter, then read `availableFilters.bookingSites` and `availableFilters.agency` on [List results](/cars/results). Agency ids are lowercase codes such as `hertz` or `enterprise`. Up to 10 of each. [Providers](https://www.ktemia.com/providers/#car-rental-companies) lists every booking site and rental company we have seen, and opens this page with the filter already in the examples.
+
+## Read more
+
+The compare job for a pickup: [car rental API](https://www.ktemia.com/blog/car-rental-api/). How the same search covers several sellers: [car rental aggregator API](https://www.ktemia.com/blog/car-rental-aggregator-api/).
+
+## Body parameters
+
+- `pickupLocation` (string, required): A `locationId` from [Search locations](/cars/locations). A name is rejected.
+- `dropoffLocation` (string, optional): A `locationId` when the car is dropped off somewhere else. Omit it for the same place.
+- `pickupDate` (string, required): Pickup date, YYYY-MM-DD. Cannot be in the past. Searches are usually published under a year ahead.
+- `dropoffDate` (string, required): Dropoff date, YYYY-MM-DD. Cannot be before pickupDate.
+- `pickupTime` (string, optional): Pickup time, `HH:MM`. Minutes must be `00` or `30`. Defaults to `12:00`.
+- `dropoffTime` (string, optional): Dropoff time, `HH:MM`. Minutes must be `00` or `30`. Defaults to `12:00`.
+- `driverAge` (integer, optional): Age of the driver, 18–99. Omit it to use the supplier default.
+- `carClass` (string, optional): Keep only this class. Omit it to allow any class.
+  - `small` - Mini and compact cars.
+  - `medium` - Intermediate cars.
+  - `large` - Full-size cars.
+  - `suv` - SUVs.
+  - `van` - Vans and people carriers.
+  - `pickup` - Pickup trucks.
+  - `luxury` - Luxury cars.
+  - `convertible` - Convertibles.
+- `transmission` (string, optional): Keep only this gearbox. Omit it to allow either.
+  - `automatic` - Automatic only.
+  - `manual` - Manual only.
+- `maxPrice` (integer, optional): Highest total price to return, as a whole number in the country’s native currency. Minimum is 1. Omit it for no price cap.
+- `providers` (array of strings, optional): Keep only prices from these booking sites, for example `["Expedia"]`. Use the `id` values from `availableFilters.bookingSites` on a previous results page. Up to 10. Omit it to allow every seller.
+- `agencies` (array of strings, optional): Keep only cars from these rental companies, for example `["avis"]`. Use the `id` values from `availableFilters.agency` on a previous results page. Up to 10. Omit it to allow every agency.
+- `sortBy` (string, optional): How to order the results. Defaults to bestValue.
+  - `bestValue` - Default. Recommended order.
+  - `price` - By total price.
+  - `rating` - By desk score.
+  - `distance` - By distance from the city centre.
+- `sortOrder` (string, optional): Direction for sortBy. Defaults to asc.
+  - `asc` - Default. Lowest price, highest rating, or nearest desk first.
+  - `desc` - The other direction.
+- `priceMode` (string, optional): Whether prices are totals or per day. Defaults to total.
+  - `total` - Default. Price for the whole hire.
+  - `perDay` - Average daily price.
+- `country` (string, optional): ISO 3166-1 alpha-2 market. Prices come back in that country’s native currency - GB returns GBP, DE returns EUR, US returns USD. There is no separate currency field; sending `currency` is rejected. Omit country for US. Any other value is rejected.
+  - `US` - Prices in USD.
+  - `GB` - Prices in GBP.
+  - `DE` - Prices in EUR.
+  - `FR` - Prices in EUR.
+  - `ES` - Prices in EUR.
+  - `IT` - Prices in EUR.
+  - `NL` - Prices in EUR.
+  - `BE` - Prices in EUR.
+  - `AT` - Prices in EUR.
+  - `CH` - Prices in CHF.
+  - `IE` - Prices in EUR.
+  - `PT` - Prices in EUR.
+  - `GR` - Prices in EUR.
+  - `PL` - Prices in PLN.
+  - `CZ` - Prices in CZK.
+  - `RO` - Prices in EUR.
+  - `SE` - Prices in SEK.
+  - `NO` - Prices in NOK.
+  - `DK` - Prices in DKK.
+  - `FI` - Prices in EUR.
+  - `TR` - Prices in TRY.
+  - `AE` - Prices in AED.
+  - `SA` - Prices in SAR.
+  - `IL` - Prices in ILS.
+  - `IN` - Prices in INR.
+  - `JP` - Prices in JPY.
+  - `KR` - Prices in KRW.
+  - `HK` - Prices in HKD.
+  - `TW` - Prices in TWD.
+  - `SG` - Prices in SGD.
+  - `MY` - Prices in MYR.
+  - `TH` - Prices in THB.
+  - `ID` - Prices in IDR.
+  - `PH` - Prices in PHP.
+  - `VN` - Prices in VND.
+  - `AU` - Prices in AUD.
+  - `NZ` - Prices in NZD.
+  - `CA` - Prices in CAD.
+  - `MX` - Prices in MXN.
+  - `BR` - Prices in BRL.
+  - `AR` - Prices in ARS.
+  - `CL` - Prices in CLP.
+  - `CO` - Prices in COP.
+  - `PE` - Prices in PEN.
+  - `UY` - Prices in USD.
+  - `PY` - Prices in USD.
+  - `BO` - Prices in USD.
+  - `EC` - Prices in USD.
+  - `VE` - Prices in USD.
+  - `CR` - Prices in USD.
+  - `PA` - Prices in USD.
+  - `GT` - Prices in USD.
+  - `HN` - Prices in USD.
+  - `NI` - Prices in USD.
+  - `SV` - Prices in USD.
+  - `DO` - Prices in USD.
+  - `PR` - Prices in USD.
+  - `ZA` - Prices in ZAR.
+  - `UA` - Prices in UAH.
+
+## Response fields
+
+- `searchToken` (string, required): Opaque handle for this search. Pass it to `/cars/results` for page 1, and to `/cars/details` with a car `id`. Valid for 60 minutes.
+- `expiresIn` (integer, required): Seconds remaining until the token expires, starting at `3600`.
+
+## Example: Austin
+
+`POST /cars/search` → 200
+
+Request:
+
+```json
+{
+  "pickupLocation": "22863",
+  "dropoffLocation": null,
+  "pickupDate": "2026-12-05",
+  "dropoffDate": "2026-12-12",
+  "pickupTime": "12:00",
+  "dropoffTime": "12:00",
+  "driverAge": null,
+  "carClass": null,
+  "transmission": null,
+  "maxPrice": null,
+  "sortBy": "bestValue",
+  "sortOrder": "asc",
+  "priceMode": "total",
+  "country": null
+}
+```
+
+Response:
+
+```json
+{
+  "searchToken": "eyJwIjoxLCJzIjoiMzY5Yjc0Yzc0NDI1NGYxYThjMWIyNGQ3NjgxMmZjMWUiLCJ2IjoxfQ",
+  "expiresIn": 3600
+}
+```
+
+Docs: https://www.ktemia.com/docs/api/cars/search/
