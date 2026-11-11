@@ -1,0 +1,981 @@
+---
+title: "List results"
+---
+
+Car rental API and rentals API results in Python, JavaScript, Go, Ruby, Java, and PHP. Fetch a page of 20 cars, a nextToken, and an exact total. cURL included.
+
+Base URL: https://api.ktemia.com
+Authentication: send header `X-API-Key` on every request.
+
+`GET /cars/results`
+
+Read a page of a search identified by its token.
+
+Pass the `searchToken` from `/cars/search` as the `token` query parameter to get page 1. Each response that has another page includes `nextToken`. This call usually answers in 1–4 seconds.
+
+## What is in a page
+
+`cars` is at most 20 vehicles. `bookingOptions` lists each seller and price. `availableFilters` describes this search; `carClass`, `transmission`, booking-site ids (as `providers`), and agency ids (as `agencies`) can be sent on a new `/cars/search`. `providers` and `agencies` map the codes on this page to display names.
+
+The `id` on a car is what `/cars/details` wants as `resultId`. Keep the token - details needs it too.
+
+## Read more
+
+Why one car lists several booking sites: [car rental aggregator API](https://www.ktemia.com/blog/car-rental-aggregator-api/).
+
+## Query parameters
+
+- `token` (string, required): A `searchToken` from `/cars/search` for page 1, or a `nextToken` from the previous page. There is no page number to set.
+
+## Response fields
+
+- `cars` (array of objects, required): Up to 20 cars.
+  - `id` (string, required): Opaque identifier of this car. Pass it as `resultId` to `/cars/details`.
+  - `car` (object, optional): The vehicle.
+    - `name` (string, optional): Vehicle name as listed, for example `Nissan Versa`.
+    - `class` (string, optional): Display class, for example `Compact` or `Intermediate SUV`.
+    - `classGroups` (array of strings, optional): Groups this car belongs to, such as `small` or `suv`. Matches `carClass` on a new search.
+    - `image` (string, optional): Image URL.
+    - `passengers` (integer, optional): Seat count.
+    - `bags` (integer, optional): Bag count.
+    - `doors` (integer, optional): Door count.
+    - `transmission` (string, optional): `automatic` or `manual`.
+    - `airConditioning` (boolean, optional): True when the car has air conditioning.
+    - `fuelType` (string, optional): Fuel label, for example `Gas` or `Fully electric`.
+    - `sipCode` (string, optional): ACRISS / SIP code when the supplier publishes one.
+  - `agency` (object, optional): The rental company that owns the car.
+    - `code` (string, optional): Agency code.
+    - `name` (string, optional): Display name, for example `Europcar`.
+  - `pickup` (object, optional): The pickup desk.
+    - `locationId` (string, optional): Desk id. Different from the city id you sent as `pickupLocation`.
+    - `type` (string, optional): Desk type, for example `IN_TERMINAL` or `NON_AIRPORT`.
+    - `isAirport` (boolean, optional): True when the desk is at an airport.
+    - `airportCode` (string, optional): IATA airport code when `isAirport` is true.
+    - `address` (string, optional): Street address when the supplier publishes one.
+    - `city` (string, optional): City of the desk.
+    - `country` (string, optional): ISO 3166-1 alpha-2 country code.
+    - `distance` (string, optional): Distance from the city centre, already formatted.
+    - `lat` (number, optional): Latitude.
+    - `lng` (number, optional): Longitude.
+    - `rating` (object, optional): Desk reviews.
+      - `overall` (number, optional): Desk score on a 0–10 scale.
+      - `label` (string, optional): Short label for the score, for example `good`.
+      - `count` (integer, optional): How many reviews the score is based on.
+      - `breakdowns` (array of objects, optional): Per-category scores when the supplier publishes them.
+    - `operatingHours` (array of objects, optional): Opening hours. `open` and `close` are `HHMM` integers, for example `730` is 07:30.
+  - `price` (object, optional): Lowest total price on this car.
+    - `amount` (number, optional): Numeric amount in the country’s native currency.
+    - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+    - `formatted` (string, optional): Same amount, already formatted for display.
+  - `bestOption` (object, optional): The cheapest seller for this car. Details expands every seller.
+    - `provider` (string, optional): Seller code of the cheapest option.
+    - `price` (object, optional): Total price.
+      - `amount` (number, optional): Numeric amount in the country’s native currency.
+      - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+      - `formatted` (string, optional): Same amount, already formatted for display.
+    - `perDay` (object, optional): Average daily price.
+      - `amount` (number, optional): Numeric amount in the country’s native currency.
+      - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+      - `formatted` (string, optional): Same amount, already formatted for display.
+    - `paymentType` (string, optional): `PREPAY` or `PAY_AT_PICKUP`.
+    - `freeCancellation` (boolean, optional): True when this option can be cancelled without a fee.
+    - `mileage` (string, optional): Mileage allowance, already formatted.
+    - `fuelPolicy` (string, optional): Fuel policy name, for example `full-to-full`.
+  - `bookingOptions` (array of objects, optional): Sellers for this car. Details fills in `providerUrl` on each one.
+    - `provider` (string, optional): Seller code. `providers` on the page maps it to a display name.
+    - `providerName` (string, optional): Display name of the seller.
+    - `price` (object, optional): Total price for the hire.
+      - `amount` (number, optional): Numeric amount in the country’s native currency.
+      - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+      - `formatted` (string, optional): Same amount, already formatted for display.
+    - `perDay` (object, optional): Average daily price.
+      - `amount` (number, optional): Numeric amount in the country’s native currency.
+      - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+      - `formatted` (string, optional): Same amount, already formatted for display.
+    - `paymentType` (string, optional): `PREPAY` or `PAY_AT_PICKUP`.
+    - `freeCancellation` (boolean, optional): True when this option can be cancelled without a fee.
+  - `optionCount` (integer, optional): How many sellers offered this car.
+  - `badges` (array of objects, optional): Highlights such as a discount label.
+  - `discount` (object, optional): How this price compares with the class average, when published.
+  - `viewRank` (integer, optional): Rank of this car in the search.
+- `page` (integer, required): 1-based page number for the token you sent.
+- `hasMore` (boolean, required): True when another page exists.
+- `expiresIn` (integer, required): Seconds remaining on this search.
+- `totalResults` (integer, optional): How many cars this search contains.
+- `nextToken` (string, optional): Present when `hasMore` is true. Send it as `token` on the next `/cars/results` call.
+- `availableFilters` (object, optional): Facets of this result set. `carClass`, `transmission`, `bookingSites` (as `providers`), and `agency` (as `agencies`) can be sent on a new `/cars/search`. The rest is for display.
+  - `price` (object, optional): Observed price range of the search.
+    - `min` (number, optional): Lowest total.
+    - `max` (number, optional): Highest total.
+    - `average` (object, optional): Mean total.
+      - `amount` (number, optional): Numeric amount in the country’s native currency.
+      - `currency` (string, optional): ISO 4217 code of that country’s native currency.
+      - `formatted` (string, optional): Same amount, already formatted for display.
+  - `carClass` (array of objects, optional): Vehicle classes. Send the matching public value as `carClass` on a new search (`small`, `medium`, `large`, `suv`, `van`, `pickup`, `luxury`, `convertible`).
+    - `id` (string, optional): Value to send back. For `carClass` this is `SMALL`, `MEDIUM`, `LARGE`, `SUV`, `VAN`, `PICKUPTRUCK`, `LUXURY`, or `CONVERTIBLE`. For `transmission` it is `Automatic` or `Manual`. Public search accepts `carClass` as `small` / `suv` / … and `transmission` as `automatic` / `manual`.
+    - `label` (string, optional): Display name.
+    - `minPrice` (number, optional): Cheapest total in this bucket, or `null` if none.
+    - `count` (integer, optional): How many cars fall in this bucket.
+  - `transmission` (array of objects, optional): Send `automatic` or `manual` as `transmission` on a new search.
+    - `id` (string, optional): Value to send back. For `carClass` this is `SMALL`, `MEDIUM`, `LARGE`, `SUV`, `VAN`, `PICKUPTRUCK`, `LUXURY`, or `CONVERTIBLE`. For `transmission` it is `Automatic` or `Manual`. Public search accepts `carClass` as `small` / `suv` / … and `transmission` as `automatic` / `manual`.
+    - `label` (string, optional): Display name.
+    - `minPrice` (number, optional): Cheapest total in this bucket, or `null` if none.
+    - `count` (integer, optional): How many cars fall in this bucket.
+  - `bookingSites` (array of objects, optional): Booking sites selling cars in this search. Send their `id` as `providers` on a new search.
+    - `id` (string, optional): Value to send back. For `carClass` this is `SMALL`, `MEDIUM`, `LARGE`, `SUV`, `VAN`, `PICKUPTRUCK`, `LUXURY`, or `CONVERTIBLE`. For `transmission` it is `Automatic` or `Manual`. Public search accepts `carClass` as `small` / `suv` / … and `transmission` as `automatic` / `manual`.
+    - `label` (string, optional): Display name.
+    - `minPrice` (number, optional): Cheapest total in this bucket, or `null` if none.
+    - `count` (integer, optional): How many cars fall in this bucket.
+  - `agency` (array of objects, optional): Rental companies in this search. Send their `id` (for example `avis`) as `agencies` on a new search.
+    - `id` (string, optional): Value to send back. For `carClass` this is `SMALL`, `MEDIUM`, `LARGE`, `SUV`, `VAN`, `PICKUPTRUCK`, `LUXURY`, or `CONVERTIBLE`. For `transmission` it is `Automatic` or `Manual`. Public search accepts `carClass` as `small` / `suv` / … and `transmission` as `automatic` / `manual`.
+    - `label` (string, optional): Display name.
+    - `minPrice` (number, optional): Cheapest total in this bucket, or `null` if none.
+    - `count` (integer, optional): How many cars fall in this bucket.
+- `providers` (object, optional): Map of seller code to `{ name }` for the sellers on this page.
+- `agencies` (object, optional): Map of agency code to `{ name }` for the rental companies on this page.
+- `locations` (object, optional): Map of desk `locationId` to the pickup object used by cars on this page.
+
+## Example: Page 1
+
+`GET /cars/results` → 200
+
+Request:
+
+```json
+{
+  "token": "eyJwIjoxLCJzIjoiMzY5Yjc0Yzc0NDI1NGYxYThjMWIyNGQ3NjgxMmZjMWUiLCJ2IjoxfQ"
+}
+```
+
+Response:
+
+```json
+{
+  "cars": [
+    {
+      "id": "34dd91e8d2edaccb35063a37cacca7b4",
+      "car": {
+        "name": "Fiat 500",
+        "class": "Mini",
+        "classGroups": [
+          "small"
+        ],
+        "image": "https://images.turo.com/media/vehicle/images/O8c5O2cuQPGNOpcCRg0D5A.294x196.jpg",
+        "passengers": 4,
+        "bags": 1,
+        "doors": 2,
+        "transmission": "automatic",
+        "airConditioning": true,
+        "fuelType": "Fully electric",
+        "sipCode": "MBAE"
+      },
+      "agency": {
+        "code": "turo",
+        "name": "Turo"
+      },
+      "pickup": {
+        "locationId": "8e52fc9be190248c007d",
+        "type": "NON_AIRPORT",
+        "isAirport": false,
+        "airportCode": null,
+        "address": null,
+        "city": null,
+        "country": "US",
+        "distance": "1.0 mi from city center",
+        "lat": 30.275837633693175,
+        "lng": -97.72940115400951,
+        "rating": {
+          "overall": 4.897200107574463,
+          "label": "okay",
+          "count": 0,
+          "breakdowns": null
+        },
+        "operatingHours": null
+      },
+      "price": {
+        "amount": 184,
+        "currency": "USD",
+        "formatted": "$184"
+      },
+      "bestOption": {
+        "provider": "ITURO",
+        "price": {
+          "amount": 184,
+          "currency": "USD",
+          "formatted": "$184"
+        },
+        "perDay": {
+          "amount": 27,
+          "currency": "USD",
+          "formatted": "$27"
+        },
+        "paymentType": "PREPAY",
+        "freeCancellation": true,
+        "mileage": "1,400 total mi included",
+        "fuelPolicy": "same-to-same"
+      },
+      "bookingOptions": [
+        {
+          "provider": "ITURO",
+          "providerName": "Turo",
+          "price": {
+            "amount": 184,
+            "currency": "USD",
+            "formatted": "$184"
+          },
+          "perDay": {
+            "amount": 27,
+            "currency": "USD",
+            "formatted": "$27"
+          },
+          "paymentType": "PREPAY",
+          "freeCancellation": true
+        }
+      ],
+      "optionCount": 1,
+      "badges": [
+        {
+          "type": "discount",
+          "label": "16% off",
+          "description": null
+        }
+      ],
+      "discount": null,
+      "viewRank": 1
+    },
+    {
+      "id": "2b0173a66e41e77c3658adb6028886f7",
+      "car": {
+        "name": "Nissan Versa",
+        "class": "Compact",
+        "classGroups": [
+          "small"
+        ],
+        "image": "https://content.r9cdn.net/rimg/car-images/generic/34_sedan_gray.png?…",
+        "passengers": 5,
+        "bags": 3,
+        "doors": 4,
+        "transmission": "automatic",
+        "airConditioning": true,
+        "fuelType": "Gas",
+        "sipCode": "CCAR"
+      },
+      "agency": {
+        "code": "europcar",
+        "name": "Europcar"
+      },
+      "pickup": {
+        "locationId": "20015907",
+        "type": "IN_TERMINAL",
+        "isAirport": true,
+        "airportCode": "AUS",
+        "address": "Please Go To Fox Counter",
+        "city": "Austin",
+        "country": "US",
+        "distance": "7.4 mi from city center",
+        "lat": 30.19453,
+        "lng": -97.66987,
+        "rating": {
+          "overall": 6,
+          "label": "good",
+          "count": 6,
+          "breakdowns": null
+        },
+        "operatingHours": null
+      },
+      "price": {
+        "amount": 189,
+        "currency": "USD",
+        "formatted": "$189"
+      },
+      "bestOption": {
+        "provider": "IEUROPCAR",
+        "price": {
+          "amount": 189,
+          "currency": "USD",
+          "formatted": "$189"
+        },
+        "perDay": {
+          "amount": 27,
+          "currency": "USD",
+          "formatted": "$27"
+        },
+        "paymentType": "PREPAY",
+        "freeCancellation": true,
+        "mileage": "Unlimited miles",
+        "fuelPolicy": "full-to-full"
+      },
+      "bookingOptions": [
+        {
+          "provider": "IEUROPCAR",
+          "providerName": "Europcar",
+          "price": {
+            "amount": 189,
+            "currency": "USD",
+            "formatted": "$189"
+          },
+          "perDay": {
+            "amount": 27,
+            "currency": "USD",
+            "formatted": "$27"
+          },
+          "paymentType": "PREPAY",
+          "freeCancellation": true
+        },
+        {
+          "provider": "IEXPEDIACARAPI",
+          "providerName": "Expedia",
+          "price": {
+            "amount": 256,
+            "currency": "USD",
+            "formatted": "$256"
+          },
+          "perDay": {
+            "amount": 37,
+            "currency": "USD",
+            "formatted": "$37"
+          },
+          "paymentType": "PREPAY",
+          "freeCancellation": true
+        },
+        {
+          "provider": "IEXPEDIACARAPI",
+          "providerName": "Expedia",
+          "price": {
+            "amount": 265,
+            "currency": "USD",
+            "formatted": "$265"
+          },
+          "perDay": {
+            "amount": 38,
+            "currency": "USD",
+            "formatted": "$38"
+          },
+          "paymentType": "PAY_AT_PICKUP",
+          "freeCancellation": true
+        }
+      ],
+      "optionCount": 5,
+      "badges": [
+        {
+          "type": "greatDeal",
+          "label": "38% cheaper",
+          "description": "This offer is 38% cheaper than the average small size car offer ($305)"
+        }
+      ],
+      "discount": {
+        "percent": 38,
+        "classType": "small",
+        "classAvgPrice": {
+          "amount": 304.98,
+          "currency": "USD",
+          "formatted": "$305"
+        }
+      },
+      "viewRank": 2
+    },
+    {
+      "id": "cd9d6ba5326148f167cee70439f61ea9",
+      "car": {
+        "name": "Ford EcoSport",
+        "class": "Intermediate SUV",
+        "classGroups": [
+          "suv"
+        ],
+        "image": "https://content.r9cdn.net/rimg/car-images/generic/05_suv-small_black.png?…",
+        "passengers": 5,
+        "bags": 3,
+        "doors": 5,
+        "transmission": "automatic",
+        "airConditioning": true,
+        "fuelType": "Gas",
+        "sipCode": "IFAR"
+      },
+      "agency": {
+        "code": "fox",
+        "name": "Fox"
+      },
+      "pickup": {
+        "locationId": "56753",
+        "type": "IN_TERMINAL",
+        "isAirport": true,
+        "airportCode": "AUS",
+        "address": "3819 Presidential Boulevard",
+        "city": "Austin",
+        "country": "US",
+        "distance": "7.1 mi from city center",
+        "lat": 30.19453,
+        "lng": -97.66987,
+        "rating": {
+          "overall": 6.4,
+          "label": "good",
+          "count": 96,
+          "breakdowns": null
+        },
+        "operatingHours": [
+          {
+            "days": "Monday - Sunday",
+            "open": 700,
+            "close": 2359
+          }
+        ]
+      },
+      "price": {
+        "amount": 253,
+        "currency": "USD",
+        "formatted": "$253"
+      },
+      "bestOption": {
+        "provider": "IWISECARS",
+        "price": {
+          "amount": 253,
+          "currency": "USD",
+          "formatted": "$253"
+        },
+        "perDay": {
+          "amount": 37,
+          "currency": "USD",
+          "formatted": "$37"
+        },
+        "paymentType": "PREPAY",
+        "freeCancellation": true,
+        "mileage": "Unlimited miles",
+        "fuelPolicy": "full-to-full"
+      },
+      "bookingOptions": [
+        {
+          "provider": "IWISECARS",
+          "providerName": "Wisecars",
+          "price": {
+            "amount": 253,
+            "currency": "USD",
+            "formatted": "$253"
+          },
+          "perDay": {
+            "amount": 37,
+            "currency": "USD",
+            "formatted": "$37"
+          },
+          "paymentType": "PREPAY",
+          "freeCancellation": true
+        },
+        {
+          "provider": "IAUTOEUROPE",
+          "providerName": "Auto Europe",
+          "price": {
+            "amount": 274,
+            "currency": "USD",
+            "formatted": "$274"
+          },
+          "perDay": {
+            "amount": 40,
+            "currency": "USD",
+            "formatted": "$40"
+          },
+          "paymentType": "PREPAY",
+          "freeCancellation": true
+        },
+        {
+          "provider": "ICARRENTAL8",
+          "providerName": "Car Rental 8",
+          "price": {
+            "amount": 274,
+            "currency": "USD",
+            "formatted": "$274"
+          },
+          "perDay": {
+            "amount": 40,
+            "currency": "USD",
+            "formatted": "$40"
+          },
+          "paymentType": "PREPAY",
+          "freeCancellation": true
+        }
+      ],
+      "optionCount": 9,
+      "badges": null,
+      "discount": null,
+      "viewRank": 12
+    }
+  ],
+  "page": 1,
+  "hasMore": true,
+  "expiresIn": 3598,
+  "totalResults": 932,
+  "nextToken": "eyJwIjoyLCJzIjoiMzY5Yjc0Yzc0NDI1NGYxYThjMWIyNGQ3NjgxMmZjMWUiLCJ2IjoxfQ",
+  "availableFilters": {
+    "price": {
+      "min": 0,
+      "max": 424,
+      "average": {
+        "amount": 437,
+        "currency": "USD",
+        "formatted": "$437"
+      }
+    },
+    "carClass": [
+      {
+        "id": "SMALL",
+        "label": "Small",
+        "minPrice": 184,
+        "count": 131
+      },
+      {
+        "id": "MEDIUM",
+        "label": "Medium",
+        "minPrice": 186,
+        "count": 220
+      },
+      {
+        "id": "LARGE",
+        "label": "Large",
+        "minPrice": 204,
+        "count": 152
+      }
+    ],
+    "transmission": [
+      {
+        "id": "Automatic",
+        "label": "Automatic",
+        "minPrice": 184,
+        "count": 932
+      }
+    ]
+  },
+  "providers": {
+    "IWISECARS": {
+      "code": "IWISECARS",
+      "name": "Wisecars"
+    },
+    "ICARRENTAL8": {
+      "code": "ICARRENTAL8",
+      "name": "Car Rental 8"
+    },
+    "IAUTOEUROPE": {
+      "code": "IAUTOEUROPE",
+      "name": "Auto Europe"
+    },
+    "IEXPEDIACARAPI": {
+      "code": "IEXPEDIACARAPI",
+      "name": "Expedia"
+    },
+    "IAIRPORTRENTALCARS": {
+      "code": "IAIRPORTRENTALCARS",
+      "name": "AirportRentalCars"
+    },
+    "IPRICELINECAR": {
+      "code": "IPRICELINECAR",
+      "name": "Priceline"
+    },
+    "IBOOKINGGROUP": {
+      "code": "IBOOKINGGROUP",
+      "name": "EconomyBookings"
+    },
+    "ITURO": {
+      "code": "ITURO",
+      "name": "Turo"
+    },
+    "IEUROPCAR": {
+      "code": "IEUROPCAR",
+      "name": "Europcar"
+    },
+    "IBOOKINGDOTCOMCAR": {
+      "code": "IBOOKINGDOTCOMCAR",
+      "name": "Booking.com"
+    }
+  },
+  "agencies": {
+    "turo": {
+      "code": "turo",
+      "name": "Turo"
+    },
+    "fox": {
+      "code": "fox",
+      "name": "Fox"
+    },
+    "europcar": {
+      "code": "europcar",
+      "name": "Europcar"
+    }
+  },
+  "locations": {
+    "56753": {
+      "locationId": "56753",
+      "type": "IN_TERMINAL",
+      "isAirport": true,
+      "airportCode": "AUS",
+      "address": "3819 Presidential Boulevard",
+      "city": "Austin",
+      "country": "US",
+      "distance": "7.1 mi from city center",
+      "lat": 30.19453,
+      "lng": -97.66987,
+      "rating": {
+        "overall": 6.4,
+        "label": "good",
+        "count": 96,
+        "breakdowns": [
+          {
+            "type": "comfort",
+            "label": "Comfort",
+            "score": 7.3,
+            "rating": "good"
+          },
+          {
+            "type": "clean",
+            "label": "Cleanliness",
+            "score": 7,
+            "rating": "good"
+          },
+          {
+            "type": "pickupDropoff",
+            "label": "Pick-up/Drop-off",
+            "score": 6.6,
+            "rating": "good"
+          }
+        ]
+      },
+      "operatingHours": [
+        {
+          "days": "Monday - Sunday",
+          "open": 700,
+          "close": 2359
+        }
+      ]
+    },
+    "20015907": {
+      "locationId": "20015907",
+      "type": "IN_TERMINAL",
+      "isAirport": true,
+      "airportCode": "AUS",
+      "address": "Please Go To Fox Counter",
+      "city": "Austin",
+      "country": "US",
+      "distance": "7.4 mi from city center",
+      "lat": 30.19453,
+      "lng": -97.66987,
+      "rating": {
+        "overall": 6,
+        "label": "good",
+        "count": 6,
+        "breakdowns": [
+          {
+            "type": "comfort",
+            "label": "Comfort",
+            "score": 6.6,
+            "rating": "good"
+          },
+          {
+            "type": "clean",
+            "label": "Cleanliness",
+            "score": 7.3,
+            "rating": "good"
+          },
+          {
+            "type": "pickupDropoff",
+            "label": "Pick-up/Drop-off",
+            "score": 6,
+            "rating": "good"
+          }
+        ]
+      },
+      "operatingHours": null
+    },
+    "8e52fc9be190248c007d": {
+      "locationId": "8e52fc9be190248c007d",
+      "type": "NON_AIRPORT",
+      "isAirport": false,
+      "airportCode": null,
+      "address": null,
+      "city": null,
+      "country": "US",
+      "distance": "1.0 mi from city center",
+      "lat": 30.275837633693175,
+      "lng": -97.72940115400951,
+      "rating": {
+        "overall": 4.897200107574463,
+        "label": "okay",
+        "count": 0,
+        "breakdowns": null
+      },
+      "operatingHours": null
+    }
+  }
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/cars/results)._
+
+## Example: Page 2
+
+`GET /cars/results` → 200
+
+Request:
+
+```json
+{
+  "token": "eyJwIjoyLCJzIjoiMzY5Yjc0Yzc0NDI1NGYxYThjMWIyNGQ3NjgxMmZjMWUiLCJ2IjoxfQ"
+}
+```
+
+Response:
+
+```json
+{
+  "cars": [
+    {
+      "id": "7cfcc29dc94e3fcc97f65306e5a20776",
+      "car": {
+        "name": "Volkswagen Atlas",
+        "class": "Standard SUV",
+        "classGroups": [
+          "suv"
+        ],
+        "image": "https://content.r9cdn.net/rimg/car-images/generic/35_suv_large_blue.png?…",
+        "passengers": 5,
+        "bags": 5,
+        "doors": 5,
+        "transmission": "automatic",
+        "airConditioning": true,
+        "fuelType": "Gas",
+        "sipCode": "SFAR"
+      },
+      "agency": {
+        "code": "fox",
+        "name": "Fox"
+      },
+      "pickup": {
+        "locationId": "56753",
+        "type": "IN_TERMINAL",
+        "isAirport": true,
+        "airportCode": "AUS",
+        "address": "3819 Presidential Boulevard",
+        "city": "Austin",
+        "country": "US",
+        "distance": "7.1 mi from city center",
+        "lat": 30.19453,
+        "lng": -97.66987,
+        "rating": {
+          "overall": 6.4,
+          "label": "good",
+          "count": 96,
+          "breakdowns": null
+        },
+        "operatingHours": [
+          {
+            "days": "Monday - Sunday",
+            "open": 700,
+            "close": 2359
+          }
+        ]
+      },
+      "price": {
+        "amount": 253,
+        "currency": "USD",
+        "formatted": "$253"
+      },
+      "bestOption": {
+        "provider": "IWISECARS",
+        "price": {
+          "amount": 253,
+          "currency": "USD",
+          "formatted": "$253"
+        },
+        "perDay": {
+          "amount": 37,
+          "currency": "USD",
+          "formatted": "$37"
+        },
+        "paymentType": "PREPAY",
+        "freeCancellation": true,
+        "mileage": "Unlimited miles",
+        "fuelPolicy": "full-to-full"
+      },
+      "bookingOptions": [
+        {
+          "provider": "IWISECARS",
+          "providerName": "Wisecars",
+          "price": {
+            "amount": 253,
+            "currency": "USD",
+            "formatted": "$253"
+          },
+          "perDay": {
+            "amount": 37,
+            "currency": "USD",
+            "formatted": "$37"
+          },
+          "paymentType": "PREPAY",
+          "freeCancellation": true
+        },
+        {
+          "provider": "IAUTOEUROPE",
+          "providerName": "Auto Europe",
+          "price": {
+            "amount": 274,
+            "currency": "USD",
+            "formatted": "$274"
+          },
+          "perDay": {
+            "amount": 40,
+            "currency": "USD",
+            "formatted": "$40"
+          },
+          "paymentType": "PREPAY",
+          "freeCancellation": true
+        },
+        {
+          "provider": "ICARRENTAL8",
+          "providerName": "Car Rental 8",
+          "price": {
+            "amount": 274,
+            "currency": "USD",
+            "formatted": "$274"
+          },
+          "perDay": {
+            "amount": 40,
+            "currency": "USD",
+            "formatted": "$40"
+          },
+          "paymentType": "PREPAY",
+          "freeCancellation": true
+        }
+      ],
+      "optionCount": 8,
+      "badges": null,
+      "discount": null,
+      "viewRank": 1
+    }
+  ],
+  "page": 2,
+  "hasMore": true,
+  "expiresIn": 3594,
+  "totalResults": 932,
+  "nextToken": "eyJwIjozLCJzIjoiMzY5Yjc0Yzc0NDI1NGYxYThjMWIyNGQ3NjgxMmZjMWUiLCJ2IjoxfQ",
+  "availableFilters": {
+    "price": {
+      "min": 0,
+      "max": 424,
+      "average": {
+        "amount": 437,
+        "currency": "USD",
+        "formatted": "$437"
+      }
+    },
+    "carClass": [
+      {
+        "id": "SMALL",
+        "label": "Small",
+        "minPrice": 184,
+        "count": 131
+      },
+      {
+        "id": "MEDIUM",
+        "label": "Medium",
+        "minPrice": 186,
+        "count": 220
+      },
+      {
+        "id": "LARGE",
+        "label": "Large",
+        "minPrice": 204,
+        "count": 152
+      }
+    ],
+    "transmission": [
+      {
+        "id": "Automatic",
+        "label": "Automatic",
+        "minPrice": 184,
+        "count": 932
+      }
+    ]
+  },
+  "providers": {
+    "IAIRPORTRENTALCARS": {
+      "code": "IAIRPORTRENTALCARS",
+      "name": "AirportRentalCars"
+    },
+    "IPRICELINECAR": {
+      "code": "IPRICELINECAR",
+      "name": "Priceline"
+    },
+    "IBOOKINGDOTCOMCAR": {
+      "code": "IBOOKINGDOTCOMCAR",
+      "name": "Booking.com"
+    },
+    "IWISECARS": {
+      "code": "IWISECARS",
+      "name": "Wisecars"
+    },
+    "ICARRENTAL8": {
+      "code": "ICARRENTAL8",
+      "name": "Car Rental 8"
+    },
+    "IAUTOEUROPE": {
+      "code": "IAUTOEUROPE",
+      "name": "Auto Europe"
+    },
+    "IEXPEDIACARAPI": {
+      "code": "IEXPEDIACARAPI",
+      "name": "Expedia"
+    }
+  },
+  "agencies": {
+    "fox": {
+      "code": "fox",
+      "name": "Fox"
+    }
+  },
+  "locations": {
+    "56753": {
+      "locationId": "56753",
+      "type": "IN_TERMINAL",
+      "isAirport": true,
+      "airportCode": "AUS",
+      "address": "3819 Presidential Boulevard",
+      "city": "Austin",
+      "country": "US",
+      "distance": "7.1 mi from city center",
+      "lat": 30.19453,
+      "lng": -97.66987,
+      "rating": {
+        "overall": 6.4,
+        "label": "good",
+        "count": 96,
+        "breakdowns": [
+          {
+            "type": "comfort",
+            "label": "Comfort",
+            "score": 7.3,
+            "rating": "good"
+          },
+          {
+            "type": "clean",
+            "label": "Cleanliness",
+            "score": 7,
+            "rating": "good"
+          },
+          {
+            "type": "pickupDropoff",
+            "label": "Pick-up/Drop-off",
+            "score": 6.6,
+            "rating": "good"
+          }
+        ]
+      },
+      "operatingHours": [
+        {
+          "days": "Monday - Sunday",
+          "open": 700,
+          "close": 2359
+        }
+      ]
+    }
+  }
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](/cars/results)._
+
+Docs: https://www.ktemia.com/docs/api/cars/results/
