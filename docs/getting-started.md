@@ -1,0 +1,83 @@
+# Getting started
+
+> Canonical, always current: [ktemia.com/docs/getting-started/](https://www.ktemia.com/docs/getting-started/). This repository is generated from it.
+
+Ktemia is a search and compare platform. You send a trip. You get fares you can rank. You do not get a ticket.
+
+The HTTP contract is live at `https://api.ktemia.com`. The full reference, with a playground that runs against production, is the [API reference](https://www.ktemia.com/docs/api/). This page is the shortest path into it.
+
+## Three ways to run the same job
+
+**UI.** Open search in the [dashboard](https://app.ktemia.com). Fill the required fields. Compare the rows.
+
+**APIs.** POST the same fields. One request counts as one API request. On Free, the cap is 100 requests a month as one shared pool. Pro raises that to 20,000 a month at 20 requests per second, and Business to 250,000 at 250 per second. Numbers live on [pricing](https://www.ktemia.com/pricing/).
+
+**Copilot.** Say the job in plain language. If a required field is missing, it asks. It does not invent Lisbon because you said soon. One copilot turn is one AI credit.
+
+The three surfaces must not disagree. If the copilot asks, the API rejects. If the UI requires origin, the POST body requires origin.
+
+## Authenticate
+
+Create a key in the [dashboard](https://app.ktemia.com). Send it on every call:
+
+```
+X-API-Key: <your key>
+```
+
+Do not put that key in frontend JavaScript of a product you ship. The docs playground stores one in the tab so you can try the API; that is exploration, not a pattern to copy.
+
+## Search, then results, then details
+
+Each vertical is one `POST` and two `GET`s. Flights looks up a code first. Cars and hotels look up a location id first. Hotels also have a reviews call that takes the hotel id and no token.
+
+**Flights**
+
+1. [`GET /flights/airports`](https://www.ktemia.com/docs/api/flights/airports/) turns a name into the `code` you send as origin or destination. [`GET /flights/airlines`](https://www.ktemia.com/docs/api/flights/airlines/) does the same for an airline name when you want to limit the search to those carriers. Send `code` from that response in `airlines`.
+2. [`POST /flights/search`](https://www.ktemia.com/docs/api/flights/search/) with a trip. It returns a `searchToken`. It does not return flights.
+3. [`GET /flights/results`](https://www.ktemia.com/docs/api/flights/results/) with that token. Page 1, 20 itineraries, a `nextToken` when there are more.
+4. [`GET /flights/details`](https://www.ktemia.com/docs/api/flights/details/) with the token and a flight `id`. Booking options, each with a URL on the airline or agency site.
+
+**Cars**
+
+1. [`GET /cars/locations`](https://www.ktemia.com/docs/api/cars/locations/) turns a city or airport name into the `locationId` you send as pickupLocation.
+2. [`POST /cars/search`](https://www.ktemia.com/docs/api/cars/search/) with a pickup and dates. It returns a `searchToken`. It does not return cars.
+3. [`GET /cars/results`](https://www.ktemia.com/docs/api/cars/results/) with that token. Page 1, 20 cars, a `nextToken` when there are more.
+4. [`GET /cars/details`](https://www.ktemia.com/docs/api/cars/details/) with the token and a car `id`. Sellers, each with a URL on that booking site.
+
+**Hotels**
+
+1. [`GET /hotels/locations`](https://www.ktemia.com/docs/api/hotels/locations/) turns a city or property name into the `locationId` you send as location.
+2. [`POST /hotels/search`](https://www.ktemia.com/docs/api/hotels/search/) with that id, check-in, and check-out. It returns a `searchToken`. It does not return hotels. Prices come back in the country’s native currency.
+3. [`GET /hotels/results`](https://www.ktemia.com/docs/api/hotels/results/) with that token. Page 1, up to 30 hotels, a `nextToken` when there are more.
+4. [`GET /hotels/details`](https://www.ktemia.com/docs/api/hotels/details/) with the token and a hotel `id`. Sellers, each with a URL on that booking site, plus a few recent reviews.
+5. [`GET /hotels/reviews`](https://www.ktemia.com/docs/api/hotels/reviews/) with the hotel `id`. Ten reviews a page. No token.
+
+A one-way body:
+
+```json
+{
+  "origin": "JFK",
+  "destination": "LAX",
+  "departureDate": "2026-12-03"
+}
+```
+
+A round trip adds `returnDate`. A multi-city trip sends `legs` instead of the flat fields - never both. The shapes, filters, errors, and pagination rules are in the [API reference](https://www.ktemia.com/docs/api/).
+
+## What you can search
+
+Four routes share the platform. **Flights, cars, and hotels are live.** Homes keep the same job - required fields, compare, no ticket - and will get the same reference treatment when that route ships.
+
+- Flights: origin, destination, and a depart date - or `legs` for multi-city.
+- Cars: a pickup `locationId` and dates.
+- Hotels: a `locationId`, check-in, check-out, and guests. The full contract is the [hotel API reference](https://www.ktemia.com/docs/api/hotels/search/).
+- Homes: place and the constraints you name for a listing.
+
+[Use cases](https://www.ktemia.com/use-cases/) is the umbrella.
+
+## Next
+
+1. Open the [API reference](https://www.ktemia.com/docs/api/) and run the playground on search → results → details.
+2. Read [required fields](https://www.ktemia.com/docs/copilot/) so an agent does not guess a city or a day.
+3. Open [use cases](https://www.ktemia.com/use-cases/) for the four verticals.
+4. Using Claude Code? Install the [Ktemia skills](https://github.com/Ktemiaa/ktemia-skills): `/plugin marketplace add Ktemiaa/ktemia-skills`, then `/plugin install ktemia@ktemia`. That loads `flight-search`, `car-search`, and `hotel-search`.

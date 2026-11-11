@@ -1,0 +1,20 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Ktemia API",
+  "description": "Travel search API for flights, hotels, and car rentals. Each result lists every seller with a price and booking URL. Search returns a token; results and details read it.",
+  "folders": [
+    "docs",
+    "examples"
+  ],
+  "excludeFolders": [],
+  "excludeFiles": [],
+  "rules": [
+    "Send the API key as the X-API-Key header from a server, never from browser JavaScript.",
+    "A search returns searchToken, not results. Read results with GET /{vertical}/results?token=..., and details with the same token plus resultId.",
+    "Hotels and cars need a locationId from GET /hotels/locations or GET /cars/locations. A place name on the search is rejected.",
+    "Ask the user for missing places or dates instead of guessing. Dates are YYYY-MM-DD and cannot be in the past.",
+    "There is no currency field. Send country to pick the market; prices come back in that country's currency.",
+    "Filter ids come from availableFilters on a results page: airlines for flights, bookingSites (as providers) for hotels and cars, agency (as agencies) for cars.",
+    "Return providerUrl to the user exactly as the API gave it. Ktemia compares prices; it does not book."
+  ]
+}

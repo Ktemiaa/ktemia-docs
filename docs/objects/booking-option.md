@@ -1,0 +1,115 @@
+# The Booking option object
+
+> Canonical, always current: [ktemia.com/docs/api/objects/booking-option/](https://www.ktemia.com/docs/api/objects/booking-option/). This repository is generated from it.
+
+
+A fare on an itinerary, with bags, amenities, and a provider URL.
+
+Results include a short form of this object - price, provider, flags. Details fills in `providerUrl`, bag fees, cabin amenities, and branded fare families. `cabin` values match the search field (`economy`, `premiumEconomy`, `business`, `first`).
+
+## Attributes
+
+- `providerCode` (string, optional): IATA code of the seller.
+- `providerUrl` (string, optional): Booking link on the seller’s site. Open it as returned.
+- `providerDomain` (string, optional): Host of `providerUrl`.
+- `price` (number, optional): Per-person fare in the country’s native currency.
+- `currency` (string, optional): ISO 4217 code of that country’s native currency.
+- `formattedPrice` (string, optional): Per-person fare, formatted.
+- `totalPrice` (number, optional): Fare for the whole party.
+- `formattedTotalPrice` (string, optional): Whole-party fare, formatted.
+- `bagFees` (object, optional): Carry-on and checked-bag policy for this fare.
+  - `carryOn` (object, optional): Carry-on policy for this fare.
+    - `status` (string, optional): `included`, `fee`, or `unavailable`.
+    - `price` (number, optional): Fee amount when status is `fee`.
+    - `label` (string, optional): Short display label.
+  - `checked` (object, optional): Checked-bag fees.
+    - `firstBag` (object, optional): First checked bag: `status` and `price`.
+    - `secondBag` (object, optional): Second checked bag: `status` and `price`.
+  - `disclosures` (array of strings, optional): Carrier-written size or weight notes.
+  - `policy` (array of objects, optional): Structured bag types with dimension restrictions.
+- `segmentFares` (array of objects, optional): Cabin and onboard amenities per segment.
+  - `cabin` (string, optional): Cabin of this segment: `economy`, `premiumEconomy`, `business`, or `first`.
+  - `quality` (array of objects, optional): Amenity rows. `type` is one of `aircraft`, `wifi`, `entertainment`, `power`, `seat`, `food`.
+- `badges` (array of strings, optional): Highlights such as `direct` or `freeCancellation`.
+
+## Example
+
+```json
+{
+  "providerCode": "B6",
+  "providerUrl": "https://www.jetblue.com/booking/trip-summary?…",
+  "providerDomain": "www.jetblue.com",
+  "price": 159,
+  "currency": "USD",
+  "formattedPrice": "$159",
+  "totalPrice": 159,
+  "formattedTotalPrice": "$159",
+  "bagFees": {
+    "carryOn": {
+      "status": "included",
+      "price": 0,
+      "label": "Included"
+    },
+    "checked": {
+      "firstBag": {
+        "status": "fee",
+        "price": 49
+      },
+      "secondBag": {
+        "status": "fee",
+        "price": 69
+      }
+    },
+    "disclosures": [
+      "Up to 62in total"
+    ],
+    "policy": [
+      {
+        "type": "personalItem",
+        "restrictions": {
+          "dimensions": "Up to 16 x 12 x 7in"
+        }
+      },
+      {
+        "type": "carryOn",
+        "restrictions": {
+          "dimensions": "Up to 21 x 13 x 8in"
+        }
+      },
+      {
+        "type": "checked",
+        "restrictions": {
+          "dimensions": "Up to 62in total"
+        }
+      }
+    ]
+  },
+  "segmentFares": [
+    {
+      "cabin": "economy",
+      "quality": [
+        {
+          "type": "aircraft",
+          "label": "Airbus A318/A319/A320/A321 (Narrow-body jet)"
+        },
+        {
+          "type": "wifi",
+          "label": "Streaming capable Wi-Fi"
+        },
+        {
+          "type": "entertainment",
+          "label": "Seatback on-demand & live TV"
+        }
+      ]
+    }
+  ],
+  "badges": [
+    "direct",
+    "freeCancellation"
+  ]
+}
+```
+
+_Trimmed: lists to 3 items, and query strings removed from URLs (shown as `?…`). Live responses return full booking URLs. The captured response is on [the canonical page](https://www.ktemia.com/docs/api/objects/booking-option/)._
+
+Docs: https://www.ktemia.com/docs/api/objects/booking-option/

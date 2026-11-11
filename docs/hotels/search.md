@@ -1,0 +1,206 @@
+# Search hotels
+
+> Canonical, always current: [ktemia.com/docs/api/hotels/search/](https://www.ktemia.com/docs/api/hotels/search/). This repository is generated from it.
+
+
+Hotel API and stays API in Python, JavaScript, Go, Ruby, Java, and PHP. Start a hotel search for a city and dates. Returns a token, not results. cURL included.
+
+Base URL: https://api.ktemia.com
+Authentication: send header `X-API-Key` on every request.
+
+`POST /hotels/search`
+
+Start a search. Returns a token, not results.
+
+This call returns a `searchToken`. It does not return hotels. A London weekend usually answers in 8–16 seconds while the search settles.
+
+## Country and currency
+
+Send `country` to pick the market. Prices come back in that country’s native currency. `GB` returns GBP, `DE` returns EUR, `US` returns USD. Omit `country` and the market is the US, so prices are USD.
+
+There is no `currency` field on this call. Sending one is rejected. You cannot ask for US prices in GBP, or UK prices in USD - the country decides the currency.
+
+## Place, dates, guests
+
+Send `location`, `checkin`, and `checkout`. `adults` defaults to 2 and `rooms` defaults to 1. Add `childAges` when children are staying, one age per child.
+
+`location` is an id, not a name. Look it up with [Search locations](https://www.ktemia.com/docs/api/hotels/locations/) and send `locationId`. A stay longer than 30 nights is rejected.
+
+## When there is nothing to page
+
+If there are no hotels, the call returns `404 NO_RESULTS` and no token. A date further than a year out, or an id that is not a place, is the usual cause.
+
+Why a stay search is not a Booking.com reservation: [Booking.com API](https://www.ktemia.com/blog/booking-com-api/). The captured London example on this page is the response that post points at.
+
+## Prices from one booking site
+
+Send `providers` to keep only the prices one or more booking sites sell. The "Only Booking.com" example on this page is the same London weekend with `providers: ["Booking.com"]`. Page 1 came back with 27 hotels, 1,072 in total, and every price was from Booking.com.
+
+The names to send come from the data, not from a fixed list. Run a search without `providers`, read `availableFilters.bookingSites` on [List results](https://www.ktemia.com/docs/api/hotels/results/), and send the `id` of each site you want. Up to 10. Each entry also has `count`, the number of hotels that site sells in this search.
+
+Booking sites that came back in all 10 cities we tested in November 2026: Booking.com, Expedia, Hotels.com, Priceline, Agoda.com, Trip.com, Super.com, HomeToGo, and Preferred Hotels. Smaller sites such as Homestay.com, Traveluro, Pricetravel, and Prestigia appear in some cities. Coverage changes by place and date, so read `availableFilters.bookingSites` instead of hard-coding the list. Every airline, booking site, and rental company we have seen is on [Providers](https://www.ktemia.com/providers/). Six sites compared on one London weekend, with code: [hotel price API](https://www.ktemia.com/blog/hotel-price-api/).
+
+To compare two sites, send both, for example `["Booking.com", "Expedia"]`. `bestOption` on each hotel is then the cheaper of the two, and [Retrieve hotel details](https://www.ktemia.com/docs/api/hotels/details/) lists only those sites, each with its price and booking URL. `availableFilters.bookingSites` still lists every site in the search, so you can switch sites with a new search.
+
+## Body parameters
+
+- `location` (string, required): A `locationId` from [Search locations](https://www.ktemia.com/docs/api/hotels/locations/). A name is rejected. A named hotel’s `locationId` is its city; use `hotelId` only for reviews.
+- `checkin` (string, required): Check-in date, YYYY-MM-DD. Cannot be in the past. Searches are usually published under a year ahead.
+- `checkout` (string, required): Check-out date, YYYY-MM-DD. Must be at least one night after check-in, and at most 30 nights later.
+- `adults` (integer, optional): Adults, 1–16. Defaults to 2.
+- `rooms` (integer, optional): Rooms, 1–8. Defaults to 1.
+- `childAges` (array of integers, optional): Age of each child, 0–17. At most 8. Omit it, or send `[]`, when there are no children.
+- `minStars` (integer, optional): Keep hotels with at least this many stars. `2` through `5`. Unrated properties are left out.
+- `minRating` (integer, optional): Keep hotels with at least this guest score. `6`, `7`, `8`, or `9`.
+- `maxPrice` (integer, optional): Highest before-tax stay price, as a whole number in the country’s native currency. Minimum is 1.
+- `freeCancellation` (boolean, optional): True to keep stays that can be cancelled without a fee. Defaults to false.
+- `amenities` (array of strings, optional): Amenity ids from `availableFilters.amenities` on a previous results page, for example `pool`. Up to 10. Letters, digits, `_`, and `-`.
+- `providers` (array of strings, optional): Keep only prices from these booking sites, for example `["Booking.com"]`. Use the `id` values from `availableFilters.bookingSites` on a previous results page. Up to 10. Omit it to allow every seller.
+- `sortBy` (string, optional): How to order the results. Defaults to bestValue.
+  - `bestValue` - Default. Recommended order. `sortOrder` does not change it.
+  - `price` - By the before-tax stay price. `asc` is cheapest first, `desc` is dearest first.
+  - `rating` - Highest guest score first. `sortOrder` does not change it.
+  - `stars` - By star class. `asc` is lowest first, `desc` is highest first.
+  - `distance` - Nearest to the reference point first. `sortOrder` does not change it.
+- `sortOrder` (string, optional): Direction for `price` and `stars`. Defaults to asc. Other sorts ignore it.
+  - `asc` - Default. Cheapest price, or fewest stars, first.
+  - `desc` - Dearest price, or most stars, first.
+- `country` (string, optional): ISO 3166-1 alpha-2 market. Prices come back in that country’s native currency - GB returns GBP, DE returns EUR, US returns USD. There is no separate currency field; sending `currency` is rejected. Omit country for US. Any other value is rejected.
+  - `US` - Prices in USD.
+  - `GB` - Prices in GBP.
+  - `DE` - Prices in EUR.
+  - `FR` - Prices in EUR.
+  - `ES` - Prices in EUR.
+  - `IT` - Prices in EUR.
+  - `NL` - Prices in EUR.
+  - `BE` - Prices in EUR.
+  - `AT` - Prices in EUR.
+  - `CH` - Prices in CHF.
+  - `IE` - Prices in EUR.
+  - `PT` - Prices in EUR.
+  - `GR` - Prices in EUR.
+  - `PL` - Prices in PLN.
+  - `CZ` - Prices in CZK.
+  - `RO` - Prices in EUR.
+  - `SE` - Prices in SEK.
+  - `NO` - Prices in NOK.
+  - `DK` - Prices in DKK.
+  - `FI` - Prices in EUR.
+  - `TR` - Prices in TRY.
+  - `AE` - Prices in AED.
+  - `SA` - Prices in SAR.
+  - `IL` - Prices in ILS.
+  - `IN` - Prices in INR.
+  - `JP` - Prices in JPY.
+  - `KR` - Prices in KRW.
+  - `HK` - Prices in HKD.
+  - `TW` - Prices in TWD.
+  - `SG` - Prices in SGD.
+  - `MY` - Prices in MYR.
+  - `TH` - Prices in THB.
+  - `ID` - Prices in IDR.
+  - `PH` - Prices in PHP.
+  - `VN` - Prices in VND.
+  - `AU` - Prices in AUD.
+  - `NZ` - Prices in NZD.
+  - `CA` - Prices in CAD.
+  - `MX` - Prices in MXN.
+  - `BR` - Prices in BRL.
+  - `AR` - Prices in ARS.
+  - `CL` - Prices in CLP.
+  - `CO` - Prices in COP.
+  - `PE` - Prices in PEN.
+  - `UY` - Prices in USD.
+  - `PY` - Prices in USD.
+  - `BO` - Prices in USD.
+  - `EC` - Prices in USD.
+  - `VE` - Prices in USD.
+  - `CR` - Prices in USD.
+  - `PA` - Prices in USD.
+  - `GT` - Prices in USD.
+  - `HN` - Prices in USD.
+  - `NI` - Prices in USD.
+  - `SV` - Prices in USD.
+  - `DO` - Prices in USD.
+  - `PR` - Prices in USD.
+  - `ZA` - Prices in ZAR.
+  - `UA` - Prices in UAH.
+
+## Response fields
+
+- `searchToken` (string, required): Opaque handle for this search. Pass it to `/hotels/results` for page 1, and to `/hotels/details` with a hotel `id`. Valid for 60 minutes.
+- `expiresIn` (integer, required): Seconds remaining until the token expires, starting at `3600`.
+
+## Example: London
+
+`POST /hotels/search` → 200
+
+Request:
+
+```json
+{
+  "location": "29230",
+  "checkin": "2026-12-05",
+  "checkout": "2026-12-07",
+  "adults": 2,
+  "rooms": 1,
+  "childAges": [],
+  "minStars": null,
+  "minRating": null,
+  "maxPrice": null,
+  "freeCancellation": false,
+  "amenities": [],
+  "providers": [],
+  "sortBy": "bestValue",
+  "sortOrder": "asc",
+  "country": null
+}
+```
+
+Response:
+
+```json
+{
+  "searchToken": "eyJwIjoxLCJzIjoiNjgyMmZiMzMyMzA4NDZjNGFiZWRiM2Q2OTRiM2YyNjgiLCJ2IjoxfQ",
+  "expiresIn": 3600
+}
+```
+
+## Example: Only Booking.com
+
+`POST /hotels/search` → 200
+
+Request:
+
+```json
+{
+  "location": "29230",
+  "checkin": "2026-12-05",
+  "checkout": "2026-12-07",
+  "adults": 2,
+  "rooms": 1,
+  "childAges": [],
+  "minStars": null,
+  "minRating": null,
+  "maxPrice": null,
+  "freeCancellation": false,
+  "amenities": [],
+  "providers": [
+    "Booking.com"
+  ],
+  "sortBy": "bestValue",
+  "sortOrder": "asc",
+  "country": null
+}
+```
+
+Response:
+
+```json
+{
+  "searchToken": "eyJwIjoxLCJzIjoiNmE2ODZlY2IyMmQyNGFhNjkyOTcxZjZmODg5MjZiN2IiLCJ2IjoxfQ",
+  "expiresIn": 3600
+}
+```
+
+Docs: https://www.ktemia.com/docs/api/hotels/search/
