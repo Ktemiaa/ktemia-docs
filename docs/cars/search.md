@@ -38,7 +38,7 @@ The ids come from the data. Run a search without a filter, then read `availableF
 
 ## Read more
 
-The compare job for a pickup: [car rental API](https://www.ktemia.com/blog/car-rental-api/). How the same search covers several sellers: [car rental aggregator API](https://www.ktemia.com/blog/car-rental-aggregator-api/).
+The compare job for a pickup: [car rental API](https://www.ktemia.com/blog/car-rental-api/). How the same search covers several sellers: [car rental aggregator API](https://www.ktemia.com/blog/car-rental-aggregator-api/). Every car hire and travel API you can get a key for, including CarTrawler: [best car rental and travel APIs in 2026](https://www.ktemia.com/blog/best-travel-api/).
 
 ## Body parameters
 

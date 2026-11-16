@@ -26,6 +26,25 @@ X-API-Key: <your key>
 
 Do not put that key in frontend JavaScript of a product you ship. The docs playground stores one in the tab so you can try the API; that is exploration, not a pattern to copy.
 
+## Try it in Postman
+
+Fork the public Ktemia collection: every flights, hotels and cars endpoint, with the request examples from these docs already filled in. Set `KTEMIA_API_KEY` in your environment and send. Open the [public Ktemia workspace on Postman](https://www.postman.com/ktemia-411711/ktemia-api/overview), or browse the [collection docs](https://documenter.getpostman.com/view/60192504/2sBYHaPxUX) without Postman.
+
+<div class="postman-run-button"
+data-postman-action="collection/fork"
+data-postman-visibility="public"
+data-postman-var-1="60192504-391852ae-6f8b-4310-9ba9-484e21dbff98"
+data-postman-collection-url="entityId=60192504-391852ae-6f8b-4310-9ba9-484e21dbff98&entityType=collection&workspaceId=794eb542-a605-4312-99d1-b89bc3cbbaea"></div>
+<script type="text/javascript">
+  (function (p,o,s,t,m,a,n) {
+    !p[s] && (p[s] = function () { (p[t] || (p[t] = [])).push(arguments); });
+    !o.getElementById(s+t) && o.getElementsByTagName("head")[0].appendChild((
+      (n = o.createElement("script")),
+      (n.id = s+t), (n.async = 1), (n.src = m), n
+    ));
+  }(window, document, "_pm", "PostmanRunObject", "https://run.pstmn.io/button.js"));
+</script>
+
 ## Search, then results, then details
 
 Each vertical is one `POST` and two `GET`s. Flights looks up a code first. Cars and hotels look up a location id first. Hotels also have a reviews call that takes the hotel id and no token.
@@ -80,4 +99,5 @@ Four routes share the platform. **Flights, cars, and hotels are live.** Homes ke
 1. Open the [API reference](https://www.ktemia.com/docs/api/) and run the playground on search → results → details.
 2. Read [required fields](https://www.ktemia.com/docs/copilot/) so an agent does not guess a city or a day.
 3. Open [use cases](https://www.ktemia.com/use-cases/) for the four verticals.
-4. Using Claude Code? Install the [Ktemia skills](https://github.com/Ktemiaa/ktemia-skills): `/plugin marketplace add Ktemiaa/ktemia-skills`, then `/plugin install ktemia@ktemia`. That loads `flight-search`, `car-search`, and `hotel-search`.
+4. Comparing providers? Read [which travel APIs you can get a key for in 2026](https://www.ktemia.com/blog/best-travel-api/).
+5. Using Claude Code? Install the [Ktemia skills](https://github.com/Ktemiaa/ktemia-skills): `/plugin marketplace add Ktemiaa/ktemia-skills`, then `/plugin install ktemia@ktemia`. That loads `flight-search`, `car-search`, and `hotel-search`.

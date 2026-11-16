@@ -27,6 +27,7 @@ Every vertical works the same way: a search returns a token, results pages throu
 - [Introduction](docs/introduction.md): base URL, authentication, errors, pagination
 - [Getting started](docs/getting-started.md)
 - [Filter by provider](docs/guides/filter-by-provider.md): every airline, booking site, and rental company id
+- [Check key status](docs/key.md): plan, rate limits, and quota left on your key
 
 ### Flights
 

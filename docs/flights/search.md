@@ -36,7 +36,7 @@ Send `airlines` with 2-letter IATA codes, for example `["UA"]` for United. Every
 
 ## Read more
 
-What a flight search API does, and what it does not: [flight search API](https://www.ktemia.com/blog/flight-search-api/). Moving from another provider: [Kiwi Tequila API](https://www.ktemia.com/blog/kiwi-tequila-api/), [Amadeus API vs Skyscanner API](https://www.ktemia.com/blog/amadeus-api-vs-skyscanner-api/), and why there is no [Google Flights API](https://www.ktemia.com/blog/google-flights-api/). Claude Code skill: [Ktemiaa/ktemia-skills](https://github.com/Ktemiaa/ktemia-skills).
+What a flight search API does, and what it does not: [flight search API](https://www.ktemia.com/blog/flight-search-api/). Moving from another provider: [Kiwi Tequila API](https://www.ktemia.com/blog/kiwi-tequila-api/), [Amadeus API vs Skyscanner API](https://www.ktemia.com/blog/amadeus-api-vs-skyscanner-api/), and why there is no [Google Flights API](https://www.ktemia.com/blog/google-flights-api/). Every flight API you can get a key for, compared: [best flight and travel APIs in 2026](https://www.ktemia.com/blog/best-travel-api/). Claude Code skill: [Ktemiaa/ktemia-skills](https://github.com/Ktemiaa/ktemia-skills).
 
 ## Body parameters
 

@@ -24,7 +24,7 @@ A query that matches nothing returns `200` with an empty `locations` list. A mis
 
 ## Read more
 
-What a car rental search API does, and what it does not: [car rental API](https://www.ktemia.com/blog/car-rental-api/). Why one search lists several sellers for the same car: [car rental aggregator API](https://www.ktemia.com/blog/car-rental-aggregator-api/).
+What a car rental search API does, and what it does not: [car rental API](https://www.ktemia.com/blog/car-rental-api/). Why one search lists several sellers for the same car: [car rental aggregator API](https://www.ktemia.com/blog/car-rental-aggregator-api/). Car hire APIs, including CarTrawler, compared with the rest: [travel API comparison](https://www.ktemia.com/blog/best-travel-api/).
 
 ## Query parameters
 

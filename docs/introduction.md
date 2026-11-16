@@ -3,11 +3,27 @@
 > Canonical, always current: [ktemia.com/docs/api/](https://www.ktemia.com/docs/api/). This repository is generated from it.
 
 
-A flights API for search and compare. Describe a trip and get the providers who can sell it, with prices. Booking stays with the provider.
+One travel API for flights, hotels and car rentals: search, compare every seller’s price and get booking links. Examples in 7 languages and a free plan.
+
+A travel API for search and compare: flights, hotels, and car rentals in one contract. Describe a trip and get the providers who can sell it, with prices. Booking stays with the provider.
 
 Ktemia is a travel search API. You describe a trip for a person. The response is the providers who can sell it: airlines, agencies, and other sellers, with prices you can compare.
 
 The API does not issue a ticket, take payment, or hold a reservation. When you open an offer, the response includes that provider’s URL. The person books on the provider’s site.
+
+Choosing between providers first? [Travel APIs compared by who gives you a key](https://www.ktemia.com/blog/best-travel-api/) covers Amadeus, Skyscanner, Booking.com Demand, Expedia Rapid, CarTrawler, and Ktemia.
+
+## Flights API
+
+Turn a place into an airport or city code with [Search airports](https://www.ktemia.com/docs/api/flights/airports/) and an airline name into a code with [Search airlines](https://www.ktemia.com/docs/api/flights/airlines/). Search one-way, round trip, or multi-city with 2 to 6 legs, and get every seller’s fare with a booking link. Start with the [flight search API](https://www.ktemia.com/docs/api/flights/search/).
+
+## Hotel API
+
+Turn a city, neighbourhood, or property name into a location id, search by dates and guests, and compare every booking site’s price for each hotel, with guest reviews. Start with the [hotel API](https://www.ktemia.com/docs/api/hotels/search/).
+
+## Car rental API
+
+Find a pickup location, search by dates, and compare rental companies and booking sites for each car. Narrow results to named rental companies with `agencies`. Start with the [car rental API](https://www.ktemia.com/docs/api/cars/search/).
 
 ## Base URL
 
@@ -123,3 +139,57 @@ Each endpoint page lists every parameter, the allowed values, and a captured exa
 https://www.ktemia.com/docs/api/flights/search/
 https://www.ktemia.com/docs/api/cars/search/
 https://www.ktemia.com/docs/api/hotels/search/
+
+## Docs index
+
+Every page of the docs. Append `.md` to a URL (without the trailing slash) for the Markdown version.
+
+### Guides
+
+- [Getting started](https://www.ktemia.com/docs/getting-started/): Call the live flights, cars, and hotels APIs: POST search, GET results, GET details. Same compare job as the dashboard and the copilot.
+- [Required fields](https://www.ktemia.com/docs/copilot/): If a field is missing, the copilot asks and the API names it. Neither invents a city or a day.
+- [API changelog](https://www.ktemia.com/docs/changelog/): Dated changes to the Ktemia flights, hotels, and cars APIs: new endpoints, filters, limits, and tooling.
+
+### Reference
+
+- [Introduction](https://www.ktemia.com/docs/api/): One travel API for flights, hotels and car rentals: search, compare every seller’s price and get booking links. Examples in 7 languages and a free plan.
+- [Check key status](https://www.ktemia.com/docs/api/key/): Read the plan, rate limits, and remaining monthly quota for an API key. Not metered, so checking costs nothing. Code in cURL, Python, Node, Go, Java, Ruby, and PHP.
+
+### Flights
+
+- [Search airports](https://www.ktemia.com/docs/api/flights/airports/): Look up an airport or city code by name. Use the code as origin or destination on a flight search. Code in cURL, Python, Node, Go, Java, Ruby, and PHP.
+- [Search airlines](https://www.ktemia.com/docs/api/flights/airlines/): Look up an airline code by name. Use the code on airlines when you search flights. Code in cURL, Python, Node, Go, Java, Ruby, and PHP.
+- [Search flights](https://www.ktemia.com/docs/api/flights/search/): Start a flight search: one-way, round trip, or multi-city. Returns a token, not results. Code in cURL, Python, Node, Go, Java, Ruby, and PHP.
+- [List results](https://www.ktemia.com/docs/api/flights/results/): Fetch a page of flight data for a search: 20 itineraries, a nextToken, an exact total. Code in cURL, Python, Node, Go, Java, Ruby, and PHP.
+- [Retrieve flight details](https://www.ktemia.com/docs/api/flights/details/): Expand one itinerary into every fare, with a URL that opens the seller’s booking page. Code in cURL, Python, Node, Go, Java, Ruby, and PHP.
+
+### Hotels
+
+- [Search locations](https://www.ktemia.com/docs/api/hotels/locations/): Hotel API location lookup in Python, JavaScript, Go, Ruby, Java, and PHP. Turn a city, neighbourhood, or property name into the id a hotel search accepts. cURL included.
+- [Search hotels](https://www.ktemia.com/docs/api/hotels/search/): Hotel API and stays API in Python, JavaScript, Go, Ruby, Java, and PHP. Start a hotel search for a city and dates. Returns a token, not results. cURL included.
+- [List results](https://www.ktemia.com/docs/api/hotels/results/): Hotel API results in Python, JavaScript, Go, Ruby, Java, and PHP. Fetch a page of up to 30 hotels, a nextToken, and an exact total. cURL included.
+- [Retrieve hotel details](https://www.ktemia.com/docs/api/hotels/details/): Hotel API details in Python, JavaScript, Go, Ruby, Java, and PHP. Expand one hotel into every seller, with a URL that opens that booking site. cURL included.
+- [Hotel reviews](https://www.ktemia.com/docs/api/hotels/reviews/): Hotel reviews API in Python, JavaScript, Go, Ruby, Java, and PHP. Page guest reviews for one hotel by date, score, traveller, month, or source. cURL included.
+
+### Cars
+
+- [Search locations](https://www.ktemia.com/docs/api/cars/locations/): Car rental API location lookup in Python, JavaScript, Go, Ruby, Java, and PHP. Turn a city or airport name into the id a car hire search accepts. cURL included.
+- [Search cars](https://www.ktemia.com/docs/api/cars/search/): Car rental API, rentals API, and car hire API in Python, JavaScript, Go, Ruby, Java, and PHP. Start a rental cars search for a pickup and dates. Returns a token, not results. cURL included.
+- [List results](https://www.ktemia.com/docs/api/cars/results/): Car rental API and rentals API results in Python, JavaScript, Go, Ruby, Java, and PHP. Fetch a page of 20 cars, a nextToken, and an exact total. cURL included.
+- [Retrieve car details](https://www.ktemia.com/docs/api/cars/details/): Car hire API details in Python, JavaScript, Go, Ruby, Java, and PHP. Expand one car into every seller, with a URL that opens that booking site. cURL included.
+
+### Objects
+
+- [The Flight object](https://www.ktemia.com/docs/api/objects/flight/): One itinerary: legs, segments, and the fares on it.
+- [The Booking option object](https://www.ktemia.com/docs/api/objects/booking-option/): A fare on an itinerary, with bags, amenities, and a provider URL.
+- [The Car object](https://www.ktemia.com/docs/api/objects/car/): One vehicle: the car, the desk, and the sellers on it.
+- [The Car booking option object](https://www.ktemia.com/docs/api/objects/car-booking-option/): A seller for a car, with terms and a provider URL.
+- [The Hotel object](https://www.ktemia.com/docs/api/objects/hotel/): One property: the stay, the place, and the cheapest seller.
+- [The Hotel booking option object](https://www.ktemia.com/docs/api/objects/hotel-booking-option/): A seller for a stay, with a provider URL.
+- [The Hotel review object](https://www.ktemia.com/docs/api/objects/hotel-review/): One guest review, scored on the same 0–10 scale as the hotel.
+
+### Machine-readable
+
+- [OpenAPI spec](https://www.ktemia.com/openapi.json): OpenAPI 3.1 contract for every public endpoint.
+- [AGENTS.md](https://www.ktemia.com/AGENTS.md): Setup, auth, rules, and errors for coding agents.
+- [Site llms.txt](https://www.ktemia.com/llms.txt): Product, use cases, docs, and blog.
