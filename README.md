@@ -69,6 +69,9 @@ Every vertical works the same way: a search returns a token, results pages throu
 
 ## Use it from a coding agent
 
+- MCP server for Cursor, Claude Code, Claude Desktop, and Codex: [`@ktemia/mcp`](https://www.npmjs.com/package/@ktemia/mcp) ([setup](https://www.ktemia.com/docs/mcp/), [source](https://github.com/Ktemiaa/ktemia-mcp))
+  - Claude Code: `claude mcp add ktemia -e KTEMIA_API_KEY=your-key -- npx -y @ktemia/mcp`
+  - Cursor and Claude Desktop: `"command": "npx"`, `"args": ["-y", "@ktemia/mcp"]`, with `KTEMIA_API_KEY` in the server's `env`
 - Skills for Claude Code, Codex, and Cursor: [Ktemiaa/ktemia-skills](https://github.com/Ktemiaa/ktemia-skills)
 - `llms.txt`: [https://www.ktemia.com/docs/api/llms.txt](https://www.ktemia.com/docs/api/llms.txt)
 

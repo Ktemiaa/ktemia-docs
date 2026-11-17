@@ -17,6 +17,7 @@
     "Ask the user for missing places or dates instead of guessing. Dates are YYYY-MM-DD and cannot be in the past.",
     "There is no currency field. Send country to pick the market; prices come back in that country's currency.",
     "Filter ids come from availableFilters on a results page: airlines for flights, bookingSites (as providers) for hotels and cars, agency (as agencies) for cars.",
-    "Return providerUrl to the user exactly as the API gave it. Ktemia compares prices; it does not book."
+    "Return providerUrl to the user exactly as the API gave it. Ktemia compares prices; it does not book.",
+    "In an MCP client, these endpoints are available as the seven @ktemia/mcp tools; a search page that comes back empty with a nextToken means page again with the same tool, not that there are no results."
   ]
 }

@@ -100,4 +100,5 @@ Four routes share the platform. **Flights, cars, and hotels are live.** Homes ke
 2. Read [required fields](https://www.ktemia.com/docs/copilot/) so an agent does not guess a city or a day.
 3. Open [use cases](https://www.ktemia.com/use-cases/) for the four verticals.
 4. Comparing providers? Read [which travel APIs you can get a key for in 2026](https://www.ktemia.com/blog/best-travel-api/).
-5. Using Claude Code? Install the [Ktemia skills](https://github.com/Ktemiaa/ktemia-skills): `/plugin marketplace add Ktemiaa/ktemia-skills`, then `/plugin install ktemia@ktemia`. That loads `flight-search`, `car-search`, and `hotel-search`.
+5. Working in Cursor, Claude Code, Claude Desktop, or Codex? Add the [MCP server](https://www.ktemia.com/docs/mcp/) and search from the editor: `npx -y @ktemia/mcp` with your key in the client config.
+6. Using Claude Code? Install the [Ktemia skills](https://github.com/Ktemiaa/ktemia-skills): `/plugin marketplace add Ktemiaa/ktemia-skills`, then `/plugin install ktemia@ktemia`. That loads `flight-search`, `car-search`, and `hotel-search`.

@@ -147,6 +147,7 @@ Every page of the docs. Append `.md` to a URL (without the trailing slash) for t
 ### Guides
 
 - [Getting started](https://www.ktemia.com/docs/getting-started/): Call the live flights, cars, and hotels APIs: POST search, GET results, GET details. Same compare job as the dashboard and the copilot.
+- [MCP server](https://www.ktemia.com/docs/mcp/): Run the Ktemia MCP server in Cursor, Claude Code, Claude Desktop, or Codex. Seven read-only tools for flights, hotels, and cars.
 - [Required fields](https://www.ktemia.com/docs/copilot/): If a field is missing, the copilot asks and the API names it. Neither invents a city or a day.
 - [API changelog](https://www.ktemia.com/docs/changelog/): Dated changes to the Ktemia flights, hotels, and cars APIs: new endpoints, filters, limits, and tooling.
 
@@ -192,4 +193,6 @@ Every page of the docs. Append `.md` to a URL (without the trailing slash) for t
 
 - [OpenAPI spec](https://www.ktemia.com/openapi.json): OpenAPI 3.1 contract for every public endpoint.
 - [AGENTS.md](https://www.ktemia.com/AGENTS.md): Setup, auth, rules, and errors for coding agents.
+- [APIs.json profile](https://www.ktemia.com/apis.yml): Every machine-readable resource for the API, also as [JSON](https://www.ktemia.com/apis.json).
+- [API catalog](https://www.ktemia.com/.well-known/api-catalog): RFC 9727 well-known catalog.
 - [Site llms.txt](https://www.ktemia.com/llms.txt): Product, use cases, docs, and blog.
