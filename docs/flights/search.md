@@ -54,13 +54,9 @@ What a flight search API does, and what it does not: [flight search API](https:/
   - `business` - Only business fares.
   - `first` - Only first fares.
 - `passengers` (object, optional): How many travellers of each fare type. Defaults to one adult. The counts added together must be at least 1 and at most 9.
-  - `adults` (integer, optional): Ages 18–64. Defaults to 1. Each count is 0–9, and all counts together must be at least 1 and at most 9.
-  - `seniors` (integer, optional): Ages 65 and over. Defaults to 0.
-  - `students` (integer, optional): Ages 18 and over, on a student fare. Defaults to 0.
-  - `youths` (integer, optional): Ages 12–17. Defaults to 0.
-  - `children` (integer, optional): Ages 2–11. Defaults to 0.
-  - `infantsInSeat` (integer, optional): Under 2, in their own seat. Defaults to 0.
-  - `infantsOnLap` (integer, optional): Under 2, on a lap. Defaults to 0. Cannot be higher than adults + seniors + students.
+  - `adults` (integer, optional): Ages 12 and over. Defaults to 1. Each count is 0–9, and all counts together must be at least 1 and at most 9. Count seniors, students and youths here.
+  - `children` (integer, optional): Ages 2–11. Defaults to 0. Count an infant in their own seat here.
+  - `infantsOnLap` (integer, optional): Under 2, on an adult’s lap. Defaults to 0. Cannot be higher than adults.
 - `maxStops` (integer, optional): How many stops to allow. Omit it to allow any number of stops.
   - `0` - Nonstop only.
   - `1` - At most one stop.
@@ -162,11 +158,7 @@ Request:
   "cabin": "economy",
   "passengers": {
     "adults": 1,
-    "seniors": 0,
-    "students": 0,
-    "youths": 0,
     "children": 0,
-    "infantsInSeat": 0,
     "infantsOnLap": 0
   },
   "maxStops": null,
@@ -204,11 +196,7 @@ Request:
   "cabin": "economy",
   "passengers": {
     "adults": 2,
-    "seniors": 0,
-    "students": 0,
-    "youths": 0,
     "children": 0,
-    "infantsInSeat": 0,
     "infantsOnLap": 0
   },
   "maxStops": 0,
@@ -262,11 +250,7 @@ Request:
   "cabin": "economy",
   "passengers": {
     "adults": 1,
-    "seniors": 0,
-    "students": 0,
-    "youths": 0,
     "children": 0,
-    "infantsInSeat": 0,
     "infantsOnLap": 0
   },
   "maxStops": null,
