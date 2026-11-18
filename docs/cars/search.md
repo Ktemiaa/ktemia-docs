@@ -72,9 +72,9 @@ The compare job for a pickup: [car rental API](https://www.ktemia.com/blog/car-r
 - `sortOrder` (string, optional): Direction for sortBy. Defaults to asc.
   - `asc` - Default. Lowest price, highest rating, or nearest desk first.
   - `desc` - The other direction.
-- `priceMode` (string, optional): Whether prices are totals or per day. Defaults to total.
+- `priceMode` (string, optional): What `price` shows on each car and booking option. Defaults to total. Either way, every option also carries `perDay`. `maxPrice` always caps the total for the whole hire.
   - `total` - Default. Price for the whole hire.
-  - `perDay` - Average daily price.
+  - `perDay` - Average daily price, the same figure as `perDay`.
 - `country` (string, optional): ISO 3166-1 alpha-2 market. Prices come back in that country’s native currency - GB returns GBP, DE returns EUR, US returns USD. There is no separate currency field; sending `currency` is rejected. Omit country for US. Any other value is rejected.
   - `US` - Prices in USD.
   - `GB` - Prices in GBP.
